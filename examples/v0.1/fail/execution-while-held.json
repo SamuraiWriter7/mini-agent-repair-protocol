@@ -1,0 +1,43 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "marp-fail-execution-while-held-001",
+  "expected_result": "FAIL",
+  "operation": {
+    "operation_id": "op-execution-while-held-001",
+    "operation_type": "repair",
+    "status": "executed",
+    "scope": "component-runtime-configuration",
+    "state_changing": true,
+    "description": "A mini-agent executes a state-changing repair operation while authorization remains pending and the operation is held for external review."
+  },
+  "mini_agent": {
+    "mini_agent_id": "mini-agent-repair-006",
+    "role": "repair"
+  },
+  "target": {
+    "target_id": "ai-component-010",
+    "target_type": "component",
+    "authorized_scope": [
+      "component-runtime-configuration"
+    ],
+    "replaceable": false
+  },
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-held-repair-010",
+    "authorization_status": "pending",
+    "authorized_operations": [
+      "repair"
+    ]
+  },
+  "verification": {
+    "verifier_id": "independent-verifier-008",
+    "verification_status": "pending",
+    "verification_evidence_ids": []
+  },
+  "evidence": [
+    "evidence-authorization-hold-010",
+    "evidence-unauthorized-execution-010"
+  ],
+  "timestamp": "2026-10-26T01:20:00Z"
+}
