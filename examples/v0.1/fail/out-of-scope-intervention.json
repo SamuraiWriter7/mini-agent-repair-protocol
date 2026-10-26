@@ -1,0 +1,43 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "marp-fail-out-of-scope-intervention-001",
+  "expected_result": "FAIL",
+  "operation": {
+    "operation_id": "op-out-of-scope-intervention-001",
+    "operation_type": "repair",
+    "status": "executed",
+    "scope": "foundation-model-configuration",
+    "state_changing": true,
+    "description": "A mini-agent attempts to modify a foundation-model configuration despite holding authorization limited to a runtime component."
+  },
+  "mini_agent": {
+    "mini_agent_id": "mini-agent-repair-004",
+    "role": "repair"
+  },
+  "target": {
+    "target_id": "ai-component-008",
+    "target_type": "component",
+    "authorized_scope": [
+      "component-runtime-configuration"
+    ],
+    "replaceable": false
+  },
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-repair-008",
+    "authorization_status": "granted",
+    "authorized_operations": [
+      "repair"
+    ]
+  },
+  "verification": {
+    "verifier_id": "independent-verifier-006",
+    "verification_status": "pending",
+    "verification_evidence_ids": []
+  },
+  "evidence": [
+    "evidence-out-of-scope-attempt-008",
+    "evidence-scope-violation-008"
+  ],
+  "timestamp": "2026-10-26T01:10:00Z"
+}
