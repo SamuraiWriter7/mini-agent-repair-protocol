@@ -1,0 +1,46 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "marp-pass-independently-verified-repair-001",
+  "expected_result": "PASS",
+  "operation": {
+    "operation_id": "op-independently-verified-repair-001",
+    "operation_type": "repair",
+    "status": "verified",
+    "scope": "component-runtime-configuration",
+    "state_changing": true,
+    "description": "Restore a bounded AI component runtime configuration under explicit external authorization, followed by independent verification of the repair outcome."
+  },
+  "mini_agent": {
+    "mini_agent_id": "mini-agent-repair-001",
+    "role": "repair"
+  },
+  "target": {
+    "target_id": "ai-component-003",
+    "target_type": "component",
+    "authorized_scope": [
+      "component-runtime-configuration"
+    ],
+    "replaceable": false
+  },
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-repair-001",
+    "authorization_status": "granted",
+    "authorized_operations": [
+      "repair"
+    ]
+  },
+  "verification": {
+    "verifier_id": "independent-verifier-002",
+    "verification_status": "passed",
+    "verification_evidence_ids": [
+      "evidence-independent-verification-003"
+    ]
+  },
+  "evidence": [
+    "evidence-pre-repair-diagnosis-003",
+    "evidence-repair-execution-003",
+    "evidence-independent-verification-003"
+  ],
+  "timestamp": "2026-10-26T00:20:00Z"
+}
