@@ -1,0 +1,71 @@
+name: Validate MARP v0.1
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marp-validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate MARP (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.10"
+          - "3.12"
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install validation dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Check Python syntax
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/validate_examples.py
+
+      - name: Validate MARP v0.1 examples
+        run: |
+          set -euo pipefail
+          python scripts/validate_examples.py
+
+      - name: Validation summary
+        if: success()
+        run: |
+          echo "### MARP v0.1 Validation" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Schema: repair-record.schema.json" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Expected PASS examples: 4" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Expected FAIL examples: 6" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Total expected matches: 10" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Python: ${{ matrix.python-version }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Result: PASS" >> "$GITHUB_STEP_SUMMARY"
