@@ -1,0 +1,41 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "marp-fail-missing-authorization-001",
+  "expected_result": "FAIL",
+  "operation": {
+    "operation_id": "op-missing-authorization-001",
+    "operation_type": "repair",
+    "status": "executed",
+    "scope": "component-runtime-configuration",
+    "state_changing": true,
+    "description": "Attempt to repair an AI component without obtaining explicit authorization from the external authority controller."
+  },
+  "mini_agent": {
+    "mini_agent_id": "mini-agent-repair-unauthorized-001",
+    "role": "repair"
+  },
+  "target": {
+    "target_id": "ai-component-005",
+    "target_type": "component",
+    "authorized_scope": [
+      "component-runtime-configuration"
+    ],
+    "replaceable": false
+  },
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_status": "pending",
+    "authorized_operations": [
+      "repair"
+    ]
+  },
+  "verification": {
+    "verifier_id": "independent-verifier-004",
+    "verification_status": "pending",
+    "verification_evidence_ids": []
+  },
+  "evidence": [
+    "evidence-unauthorized-repair-attempt-005"
+  ],
+  "timestamp": "2026-10-26T00:40:00Z"
+}
