@@ -1,0 +1,47 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "marp-pass-authorized-component-replacement-001",
+  "expected_result": "PASS",
+  "operation": {
+    "operation_id": "op-authorized-component-replacement-001",
+    "operation_type": "replace",
+    "status": "verified",
+    "scope": "component-runtime-module",
+    "state_changing": true,
+    "description": "Replace a failed and explicitly replaceable AI runtime component under external authorization, without modifying the foundation model or unrelated components."
+  },
+  "mini_agent": {
+    "mini_agent_id": "mini-agent-replacement-001",
+    "role": "replacement"
+  },
+  "target": {
+    "target_id": "ai-component-004",
+    "target_type": "component",
+    "authorized_scope": [
+      "component-runtime-module"
+    ],
+    "replaceable": true
+  },
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-replacement-001",
+    "authorization_status": "granted",
+    "authorized_operations": [
+      "replace"
+    ]
+  },
+  "verification": {
+    "verifier_id": "independent-verifier-003",
+    "verification_status": "passed",
+    "verification_evidence_ids": [
+      "evidence-independent-replacement-verification-004"
+    ]
+  },
+  "evidence": [
+    "evidence-component-failure-diagnosis-004",
+    "evidence-replacement-authorization-004",
+    "evidence-component-replacement-execution-004",
+    "evidence-independent-replacement-verification-004"
+  ],
+  "timestamp": "2026-10-26T00:30:00Z"
+}
