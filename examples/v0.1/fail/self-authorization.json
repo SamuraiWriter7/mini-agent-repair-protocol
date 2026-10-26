@@ -1,0 +1,43 @@
+{
+  "schema_version": "0.1.0",
+  "record_id": "marp-fail-self-authorization-001",
+  "expected_result": "FAIL",
+  "operation": {
+    "operation_id": "op-self-authorization-001",
+    "operation_type": "repair",
+    "status": "executed",
+    "scope": "component-runtime-configuration",
+    "state_changing": true,
+    "description": "A mini-agent attempts to execute a state-changing repair by identifying itself as the authority controller."
+  },
+  "mini_agent": {
+    "mini_agent_id": "mini-agent-repair-unauthorized-002",
+    "role": "repair"
+  },
+  "target": {
+    "target_id": "ai-component-006",
+    "target_type": "component",
+    "authorized_scope": [
+      "component-runtime-configuration"
+    ],
+    "replaceable": false
+  },
+  "authority": {
+    "controller_id": "mini-agent-repair-unauthorized-002",
+    "authorization_id": "authorization-self-issued-002",
+    "authorization_status": "granted",
+    "authorized_operations": [
+      "repair"
+    ]
+  },
+  "verification": {
+    "verifier_id": "independent-verifier-005",
+    "verification_status": "pending",
+    "verification_evidence_ids": []
+  },
+  "evidence": [
+    "evidence-self-issued-authorization-006",
+    "evidence-repair-execution-006"
+  ],
+  "timestamp": "2026-10-26T01:00:00Z"
+}
