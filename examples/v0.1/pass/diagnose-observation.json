@@ -1,0 +1,41 @@
+
+{
+  "schema_version": "0.1.0",
+  "record_id": "marp-pass-diagnose-observation-001",
+  "expected_result": "PASS",
+  "operation": {
+    "operation_id": "op-diagnose-observation-001",
+    "operation_type": "diagnose",
+    "status": "executed",
+    "scope": "component-health-observation",
+    "state_changing": false,
+    "description": "Read-only observation of a bounded AI component without modification or privilege escalation."
+  },
+  "mini_agent": {
+    "mini_agent_id": "mini-agent-diagnostic-001",
+    "role": "diagnostic"
+  },
+  "target": {
+    "target_id": "ai-component-001",
+    "target_type": "component",
+    "authorized_scope": [
+      "component-health-observation"
+    ],
+    "replaceable": false
+  },
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_status": "not_required",
+    "authorized_operations": [
+      "diagnose"
+    ]
+  },
+  "verification": {
+    "verification_status": "not_required",
+    "verification_evidence_ids": []
+  },
+  "evidence": [
+    "evidence-diagnostic-observation-001"
+  ],
+  "timestamp": "2026-10-26T00:00:00Z"
+}
