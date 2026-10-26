@@ -1,0 +1,371 @@
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mini-agent-repair-protocol/schemas/repair-record.schema.json",
+  "title": "MARP Repair Record v0.1",
+  "description": "A bounded and auditable operation record for the Mini-Agent Repair Protocol.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_id",
+    "operation",
+    "mini_agent",
+    "target",
+    "authority",
+    "verification",
+    "evidence",
+    "timestamp"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "record_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "operation_type",
+        "status",
+        "scope"
+      ],
+      "properties": {
+        "operation_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "operation_type": {
+          "enum": [
+            "diagnose",
+            "contain",
+            "repair",
+            "verify",
+            "replace"
+          ]
+        },
+        "status": {
+          "enum": [
+            "proposed",
+            "authorized",
+            "executed",
+            "verified",
+            "rejected",
+            "failed",
+            "held"
+          ]
+        },
+        "scope": {
+          "$ref": "#/$defs/identifier"
+        },
+        "state_changing": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2000
+        }
+      }
+    },
+    "mini_agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mini_agent_id",
+        "role"
+      ],
+      "properties": {
+        "mini_agent_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "role": {
+          "enum": [
+            "diagnostic",
+            "containment",
+            "repair",
+            "verification",
+            "replacement"
+          ]
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_id",
+        "target_type",
+        "authorized_scope"
+      ],
+      "properties": {
+        "target_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "target_type": {
+          "enum": [
+            "agent",
+            "service",
+            "component",
+            "interface"
+          ]
+        },
+        "authorized_scope": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "replaceable": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "controller_id",
+        "authorization_status"
+      ],
+      "properties": {
+        "controller_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_status": {
+          "enum": [
+            "not_required",
+            "granted",
+            "denied",
+            "pending",
+            "revoked"
+          ]
+        },
+        "authorized_operations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "diagnose",
+              "contain",
+              "repair",
+              "verify",
+              "replace"
+            ]
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verification_status"
+      ],
+      "properties": {
+        "verifier_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "verification_status": {
+          "enum": [
+            "not_required",
+            "pending",
+            "passed",
+            "failed",
+            "inconclusive"
+          ]
+        },
+        "verification_evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/identifier"
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "properties": {
+              "operation_type": {
+                "const": "diagnose"
+              }
+            },
+            "required": [
+              "operation_type"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "operation": {
+            "properties": {
+              "state_changing": {
+                "const": false
+              }
+            },
+            "required": [
+              "state_changing"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "operation": {
+            "properties": {
+              "state_changing": {
+                "const": true
+              }
+            },
+            "required": [
+              "state_changing"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "properties": {
+              "state_changing": {
+                "const": true
+              },
+              "status": {
+                "enum": [
+                  "authorized",
+                  "executed",
+                  "verified"
+                ]
+              }
+            },
+            "required": [
+              "state_changing",
+              "status"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "authority": {
+            "properties": {
+              "authorization_status": {
+                "const": "granted"
+              }
+            },
+            "required": [
+              "authorization_id",
+              "authorized_operations"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "properties": {
+              "status": {
+                "const": "verified"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "verification": {
+            "properties": {
+              "verification_status": {
+                "const": "passed"
+              },
+              "verification_evidence_ids": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "verifier_id",
+              "verification_evidence_ids"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "properties": {
+              "operation_type": {
+                "const": "replace"
+              },
+              "status": {
+                "enum": [
+                  "authorized",
+                  "executed",
+                  "verified"
+                ]
+              }
+            },
+            "required": [
+              "operation_type",
+              "status"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "target": {
+            "properties": {
+              "replaceable": {
+                "const": true
+              }
+            },
+            "required": [
+              "replaceable"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
