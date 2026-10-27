@@ -1,0 +1,53 @@
+{
+  "schema_version": "0.2.0",
+  "lifecycle_id": "marp-lifecycle-release-while-held-001",
+  "operation_id": "op-release-while-held-001",
+  "target_id": "ai-component-018",
+  "actor_id": "mini-agent-release-003",
+  "event_type": "containment_released",
+  "previous_state": "verified",
+  "next_state": "released",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-release-018",
+    "authorization_status": "granted",
+    "authorized_operations": [
+      "release"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-27T01:10:00Z",
+    "expires_at": "2026-10-27T03:00:00Z"
+  },
+  "verification": {
+    "verifier_id": "independent-verifier-012",
+    "verification_status": "passed",
+    "verification_evidence_ids": [
+      "evidence-independent-verification-018"
+    ]
+  },
+  "containment": {
+    "containment_id": "containment-ai-component-018",
+    "scope": "component-runtime-configuration",
+    "status": "released",
+    "applied_at": "2026-10-27T00:45:00Z",
+    "released_at": "2026-10-27T01:30:00Z"
+  },
+  "hold": {
+    "hold_id": "hold-ai-component-018",
+    "status": "active",
+    "reason": "An unresolved safety hold remains active pending external review. Containment release is prohibited.",
+    "review_authority_id": "external-safety-reviewer-001"
+  },
+  "evidence": [
+    "evidence-containment-applied-018",
+    "evidence-repair-completed-018",
+    "evidence-independent-verification-018",
+    "evidence-release-authorization-018",
+    "evidence-active-safety-hold-018",
+    "evidence-unauthorized-release-018"
+  ],
+  "timestamp": "2026-10-27T01:30:00Z",
+  "expected_result": "FAIL"
+}
