@@ -1,0 +1,44 @@
+
+{
+  "schema_version": "0.2.0",
+  "lifecycle_id": "marp-lifecycle-independent-verification-001",
+  "operation_id": "op-independent-verification-001",
+  "target_id": "ai-component-014",
+  "actor_id": "independent-verifier-009",
+  "event_type": "verification_passed",
+  "previous_state": "verification_pending",
+  "next_state": "verified",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-verification-014",
+    "authorization_status": "granted",
+    "authorized_operations": [
+      "verify"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-27T01:00:00Z",
+    "expires_at": "2026-10-27T02:30:00Z"
+  },
+  "verification": {
+    "verifier_id": "independent-verifier-009",
+    "verification_status": "passed",
+    "verification_evidence_ids": [
+      "evidence-independent-verification-014"
+    ]
+  },
+  "containment": {
+    "containment_id": "containment-ai-component-014",
+    "scope": "component-runtime-configuration",
+    "status": "active",
+    "applied_at": "2026-10-27T00:55:00Z"
+  },
+  "evidence": [
+    "evidence-repair-completion-014",
+    "evidence-independent-test-results-014",
+    "evidence-independent-verification-014"
+  ],
+  "timestamp": "2026-10-27T01:10:00Z",
+  "expected_result": "PASS"
+}
