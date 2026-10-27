@@ -1,0 +1,46 @@
+
+{
+  "schema_version": "0.2.0",
+  "lifecycle_id": "marp-lifecycle-invalid-transition-001",
+  "operation_id": "op-invalid-lifecycle-transition-001",
+  "target_id": "ai-component-022",
+  "actor_id": "mini-agent-release-005",
+  "event_type": "containment_released",
+  "previous_state": "observed",
+  "next_state": "released",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-release-022",
+    "authorization_status": "granted",
+    "authorized_operations": [
+      "release"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-27T01:00:00Z",
+    "expires_at": "2026-10-27T03:00:00Z"
+  },
+  "verification": {
+    "verifier_id": "independent-verifier-014",
+    "verification_status": "passed",
+    "verification_evidence_ids": [
+      "evidence-independent-verification-022"
+    ]
+  },
+  "containment": {
+    "containment_id": "containment-ai-component-022",
+    "scope": "component-runtime-configuration",
+    "status": "released",
+    "applied_at": "2026-10-27T00:45:00Z",
+    "released_at": "2026-10-27T01:40:00Z"
+  },
+  "evidence": [
+    "evidence-containment-applied-022",
+    "evidence-independent-verification-022",
+    "evidence-external-release-approval-022",
+    "evidence-invalid-lifecycle-transition-022"
+  ],
+  "timestamp": "2026-10-27T01:40:00Z",
+  "expected_result": "FAIL"
+}
