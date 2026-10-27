@@ -1,0 +1,40 @@
+
+{
+  "schema_version": "0.2.0",
+  "lifecycle_id": "marp-lifecycle-held-review-001",
+  "operation_id": "op-held-for-review-001",
+  "target_id": "ai-component-012",
+  "actor_id": "mini-agent-diagnostic-002",
+  "event_type": "operation_held",
+  "previous_state": "observed",
+  "next_state": "held",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-review-pending-012",
+    "authorization_status": "pending",
+    "authorized_operations": [
+      "repair"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-27T00:50:00Z"
+  },
+  "verification": {
+    "verification_status": "pending",
+    "verification_evidence_ids": []
+  },
+  "hold": {
+    "hold_id": "hold-ai-component-012",
+    "status": "active",
+    "reason": "Repair authorization and safety assessment are pending external review.",
+    "review_authority_id": "external-safety-reviewer-001"
+  },
+  "evidence": [
+    "evidence-anomaly-observation-012",
+    "evidence-review-required-012",
+    "evidence-hold-applied-012"
+  ],
+  "timestamp": "2026-10-27T00:55:00Z",
+  "expected_result": "PASS"
+}
