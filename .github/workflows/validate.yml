@@ -1,6 +1,6 @@
-name: Validate MARP v0.1
+name: Validate MARP v0.1-v0.2
 
-on:
+"on":
   push:
   pull_request:
   workflow_dispatch:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: marp-validation-${{ github.workflow }}-${{ github.ref }}
+  group: marp-validation-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -45,7 +45,6 @@ jobs:
       - name: Install validation dependencies
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
       - name: Check Python syntax
@@ -53,19 +52,63 @@ jobs:
           set -euo pipefail
           python -m py_compile scripts/validate_examples.py
 
-      - name: Validate MARP v0.1 examples
+      - name: Check required files
         run: |
           set -euo pipefail
-          python scripts/validate_examples.py
 
-      - name: Validation summary
+          test -f schemas/repair-record.schema.json
+          test -f schemas/repair-lifecycle-v0.2.schema.json
+          test -f scripts/validate_examples.py
+          test -f requirements.txt
+
+          test -d examples/v0.1/pass
+          test -d examples/v0.1/fail
+          test -d examples/v0.2/pass
+          test -d examples/v0.2/fail
+
+          echo "[PASS] Required MARP files exist"
+
+      - name: Validate MARP v0.1 and v0.2
+        run: |
+          set -euo pipefail
+
+          python scripts/validate_examples.py \
+            | tee marp-validation.log
+
+          grep -Eq 'Matched[[:space:]]*:[[:space:]]*22$' \
+            marp-validation.log
+
+          grep -Eq 'Mismatched[[:space:]]*:[[:space:]]*0$' \
+            marp-validation.log
+
+          echo "[PASS] All 22 MARP expectations matched"
+
+      - name: Publish validation summary
         if: success()
         run: |
-          echo "### MARP v0.1 Validation" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Schema: repair-record.schema.json" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Expected PASS examples: 4" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Expected FAIL examples: 6" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Total expected matches: 10" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Python: ${{ matrix.python-version }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Result: PASS" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## MARP Conformance Validation"
+            echo ""
+            echo "| Item | Result |"
+            echo "|---|---|"
+            echo "| v0.1 examples | 10 |"
+            echo "| v0.2 examples | 12 |"
+            echo "| Total expected matches | 22 |"
+            echo "| Python | ${{ matrix.python-version }} |"
+            echo "| Validation | PASS |"
+            echo ""
+            echo "### Validation Layers"
+            echo "- JSON Schema Draft 2020-12"
+            echo "- Semantic invariant checks"
+            echo "- Authorization lifecycle checks"
+            echo "- PASS/FAIL expectation matching"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload validation log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: marp-validation-python-${{ matrix.python-version }}
+          path: marp-validation.log
+          if-no-files-found: ignore
+          retention-days: 7
