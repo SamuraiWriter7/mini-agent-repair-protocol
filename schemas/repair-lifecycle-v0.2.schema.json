@@ -1,0 +1,677 @@
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MARP Repair Lifecycle Record v0.2",
+  "description": "A lifecycle event record for bounded AI repair, containment, authorization, verification, and controlled release.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "lifecycle_id",
+    "operation_id",
+    "target_id",
+    "actor_id",
+    "event_type",
+    "previous_state",
+    "next_state",
+    "authority",
+    "verification",
+    "evidence",
+    "timestamp"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.2.0"
+    },
+    "lifecycle_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "operation_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "target_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "actor_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "event_type": {
+      "enum": [
+        "authorization_granted",
+        "authorization_revoked",
+        "authorization_expired",
+        "operation_held",
+        "containment_applied",
+        "repair_started",
+        "repair_completed",
+        "verification_passed",
+        "verification_failed",
+        "release_approved",
+        "containment_released"
+      ]
+    },
+    "previous_state": {
+      "$ref": "#/$defs/lifecycleState"
+    },
+    "next_state": {
+      "$ref": "#/$defs/lifecycleState"
+    },
+    "authority": {
+      "$ref": "#/$defs/authority"
+    },
+    "verification": {
+      "$ref": "#/$defs/verification"
+    },
+    "containment": {
+      "$ref": "#/$defs/containment"
+    },
+    "hold": {
+      "$ref": "#/$defs/hold"
+    },
+    "evidence": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/identifier"
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "previous_lifecycle_id": {
+      "$ref": "#/$defs/identifier"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+    },
+    "lifecycleState": {
+      "enum": [
+        "observed",
+        "authorized",
+        "held",
+        "contained",
+        "repairing",
+        "verification_pending",
+        "verified",
+        "released",
+        "failed"
+      ]
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "controller_id",
+        "authorization_status"
+      ],
+      "properties": {
+        "controller_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_status": {
+          "enum": [
+            "not_required",
+            "granted",
+            "pending",
+            "denied",
+            "revoked",
+            "expired"
+          ]
+        },
+        "authorized_operations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "diagnose",
+              "contain",
+              "repair",
+              "verify",
+              "replace",
+              "release"
+            ]
+          }
+        },
+        "authorized_scopes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "revoked_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verification_status"
+      ],
+      "properties": {
+        "verifier_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "verification_status": {
+          "enum": [
+            "not_required",
+            "pending",
+            "passed",
+            "failed",
+            "inconclusive"
+          ]
+        },
+        "verification_evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        }
+      }
+    },
+    "containment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "containment_id",
+        "scope",
+        "status"
+      ],
+      "properties": {
+        "containment_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "scope": {
+          "$ref": "#/$defs/identifier"
+        },
+        "status": {
+          "enum": [
+            "not_applied",
+            "active",
+            "release_pending",
+            "released"
+          ]
+        },
+        "applied_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "released_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "hold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hold_id",
+        "status"
+      ],
+      "properties": {
+        "hold_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "resolved"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "review_authority_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "resolved_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "authorization_granted"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "previous_state": {
+            "const": "observed"
+          },
+          "next_state": {
+            "const": "authorized"
+          },
+          "authority": {
+            "properties": {
+              "authorization_status": {
+                "const": "granted"
+              }
+            },
+            "required": [
+              "authorization_id",
+              "authorized_operations",
+              "authorized_scopes",
+              "issued_at"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "operation_held"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "previous_state": {
+            "enum": [
+              "observed",
+              "authorized",
+              "contained",
+              "repairing",
+              "verification_pending"
+            ]
+          },
+          "next_state": {
+            "const": "held"
+          },
+          "hold": {
+            "properties": {
+              "status": {
+                "const": "active"
+              }
+            },
+            "required": [
+              "review_authority_id"
+            ]
+          }
+        },
+        "required": [
+          "hold"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "containment_applied"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "previous_state": {
+            "const": "authorized"
+          },
+          "next_state": {
+            "const": "contained"
+          },
+          "authority": {
+            "properties": {
+              "authorization_status": {
+                "const": "granted"
+              }
+            },
+            "required": [
+              "authorization_id",
+              "authorized_operations",
+              "authorized_scopes"
+            ]
+          },
+          "containment": {
+            "properties": {
+              "status": {
+                "const": "active"
+              }
+            },
+            "required": [
+              "applied_at"
+            ]
+          }
+        },
+        "required": [
+          "containment"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "repair_started"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "previous_state": {
+            "const": "contained"
+          },
+          "next_state": {
+            "const": "repairing"
+          },
+          "authority": {
+            "properties": {
+              "authorization_status": {
+                "const": "granted"
+              }
+            },
+            "required": [
+              "authorization_id",
+              "authorized_operations",
+              "authorized_scopes"
+            ]
+          },
+          "containment": {
+            "properties": {
+              "status": {
+                "const": "active"
+              }
+            }
+          }
+        },
+        "required": [
+          "containment"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "repair_completed"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "previous_state": {
+            "const": "repairing"
+          },
+          "next_state": {
+            "const": "verification_pending"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "verification_passed"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "previous_state": {
+            "const": "verification_pending"
+          },
+          "next_state": {
+            "const": "verified"
+          },
+          "verification": {
+            "properties": {
+              "verification_status": {
+                "const": "passed"
+              },
+              "verification_evidence_ids": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "verifier_id",
+              "verification_evidence_ids"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "verification_failed"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "previous_state": {
+            "const": "verification_pending"
+          },
+          "next_state": {
+            "const": "failed"
+          },
+          "verification": {
+            "properties": {
+              "verification_status": {
+                "enum": [
+                  "failed",
+                  "inconclusive"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "release_approved"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "previous_state": {
+            "const": "verified"
+          },
+          "next_state": {
+            "const": "verified"
+          },
+          "authority": {
+            "properties": {
+              "authorization_status": {
+                "const": "granted"
+              }
+            },
+            "required": [
+              "authorization_id",
+              "authorized_operations",
+              "authorized_scopes"
+            ]
+          },
+          "containment": {
+            "properties": {
+              "status": {
+                "const": "release_pending"
+              }
+            }
+          }
+        },
+        "required": [
+          "containment"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "containment_released"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "previous_state": {
+            "const": "verified"
+          },
+          "next_state": {
+            "const": "released"
+          },
+          "authority": {
+            "properties": {
+              "authorization_status": {
+                "const": "granted"
+              }
+            },
+            "required": [
+              "authorization_id",
+              "authorized_operations",
+              "authorized_scopes"
+            ]
+          },
+          "verification": {
+            "properties": {
+              "verification_status": {
+                "const": "passed"
+              },
+              "verification_evidence_ids": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "verifier_id",
+              "verification_evidence_ids"
+            ]
+          },
+          "containment": {
+            "properties": {
+              "status": {
+                "const": "released"
+              }
+            },
+            "required": [
+              "released_at"
+            ]
+          }
+        },
+        "required": [
+          "containment"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "enum": [
+              "authorization_revoked",
+              "authorization_expired"
+            ]
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "previous_state": {
+            "enum": [
+              "authorized",
+              "contained",
+              "repairing",
+              "verification_pending"
+            ]
+          },
+          "next_state": {
+            "const": "held"
+          },
+          "hold": {
+            "properties": {
+              "status": {
+                "const": "active"
+              }
+            },
+            "required": [
+              "review_authority_id"
+            ]
+          },
+          "authority": {
+            "properties": {
+              "authorization_status": {
+                "enum": [
+                  "revoked",
+                  "expired"
+                ]
+              }
+            },
+            "required": [
+              "authorization_id"
+            ]
+          }
+        },
+        "required": [
+          "hold"
+        ]
+      }
+    }
+  ]
+}
