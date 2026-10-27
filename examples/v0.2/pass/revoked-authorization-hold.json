@@ -1,0 +1,49 @@
+
+{
+  "schema_version": "0.2.0",
+  "lifecycle_id": "marp-lifecycle-revoked-authorization-hold-001",
+  "operation_id": "op-revoked-authorization-hold-001",
+  "target_id": "ai-component-016",
+  "actor_id": "external-authority-controller-001",
+  "event_type": "authorization_revoked",
+  "previous_state": "repairing",
+  "next_state": "held",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-repair-016",
+    "authorization_status": "revoked",
+    "authorized_operations": [
+      "repair"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-27T00:40:00Z",
+    "expires_at": "2026-10-27T02:30:00Z",
+    "revoked_at": "2026-10-27T01:15:00Z"
+  },
+  "verification": {
+    "verification_status": "pending",
+    "verification_evidence_ids": []
+  },
+  "containment": {
+    "containment_id": "containment-ai-component-016",
+    "scope": "component-runtime-configuration",
+    "status": "active",
+    "applied_at": "2026-10-27T00:45:00Z"
+  },
+  "hold": {
+    "hold_id": "hold-ai-component-016",
+    "status": "active",
+    "reason": "Repair authorization was revoked by the external authority controller. Further state-changing operations are suspended pending external review.",
+    "review_authority_id": "external-safety-reviewer-001"
+  },
+  "evidence": [
+    "evidence-original-repair-authorization-016",
+    "evidence-repair-in-progress-016",
+    "evidence-authorization-revocation-016",
+    "evidence-operation-hold-applied-016"
+  ],
+  "timestamp": "2026-10-27T01:15:00Z",
+  "expected_result": "PASS"
+}
