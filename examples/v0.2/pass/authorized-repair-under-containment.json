@@ -1,0 +1,40 @@
+{
+  "schema_version": "0.2.0",
+  "lifecycle_id": "marp-lifecycle-repair-contained-001",
+  "operation_id": "op-authorized-repair-contained-001",
+  "target_id": "ai-component-013",
+  "actor_id": "mini-agent-repair-007",
+  "event_type": "repair_started",
+  "previous_state": "contained",
+  "next_state": "repairing",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-repair-contained-013",
+    "authorization_status": "granted",
+    "authorized_operations": [
+      "repair"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-27T00:50:00Z",
+    "expires_at": "2026-10-27T02:30:00Z"
+  },
+  "verification": {
+    "verification_status": "pending",
+    "verification_evidence_ids": []
+  },
+  "containment": {
+    "containment_id": "containment-ai-component-013",
+    "scope": "component-runtime-configuration",
+    "status": "active",
+    "applied_at": "2026-10-27T00:55:00Z"
+  },
+  "evidence": [
+    "evidence-contained-state-013",
+    "evidence-repair-authorization-013",
+    "evidence-repair-started-013"
+  ],
+  "timestamp": "2026-10-27T01:00:00Z",
+  "expected_result": "PASS"
+}
