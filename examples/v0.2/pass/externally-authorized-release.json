@@ -1,0 +1,47 @@
+
+{
+  "schema_version": "0.2.0",
+  "lifecycle_id": "marp-lifecycle-externally-authorized-release-001",
+  "operation_id": "op-externally-authorized-release-001",
+  "target_id": "ai-component-015",
+  "actor_id": "mini-agent-release-001",
+  "event_type": "containment_released",
+  "previous_state": "verified",
+  "next_state": "released",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-release-015",
+    "authorization_status": "granted",
+    "authorized_operations": [
+      "release"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-27T01:10:00Z",
+    "expires_at": "2026-10-27T02:30:00Z"
+  },
+  "verification": {
+    "verifier_id": "independent-verifier-010",
+    "verification_status": "passed",
+    "verification_evidence_ids": [
+      "evidence-independent-verification-015"
+    ]
+  },
+  "containment": {
+    "containment_id": "containment-ai-component-015",
+    "scope": "component-runtime-configuration",
+    "status": "released",
+    "applied_at": "2026-10-27T00:40:00Z",
+    "released_at": "2026-10-27T01:20:00Z"
+  },
+  "evidence": [
+    "evidence-containment-applied-015",
+    "evidence-repair-completion-015",
+    "evidence-independent-verification-015",
+    "evidence-external-release-approval-015",
+    "evidence-containment-release-015"
+  ],
+  "timestamp": "2026-10-27T01:20:00Z",
+  "expected_result": "PASS"
+}
