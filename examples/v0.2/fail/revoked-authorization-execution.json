@@ -1,0 +1,42 @@
+{
+  "schema_version": "0.2.0",
+  "lifecycle_id": "marp-lifecycle-revoked-authorization-execution-001",
+  "operation_id": "op-revoked-authorization-execution-001",
+  "target_id": "ai-component-020",
+  "actor_id": "mini-agent-repair-009",
+  "event_type": "repair_started",
+  "previous_state": "contained",
+  "next_state": "repairing",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "authorization_id": "authorization-repair-020",
+    "authorization_status": "revoked",
+    "authorized_operations": [
+      "repair"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-27T00:40:00Z",
+    "expires_at": "2026-10-27T03:00:00Z",
+    "revoked_at": "2026-10-27T01:20:00Z"
+  },
+  "verification": {
+    "verification_status": "pending",
+    "verification_evidence_ids": []
+  },
+  "containment": {
+    "containment_id": "containment-ai-component-020",
+    "scope": "component-runtime-configuration",
+    "status": "active",
+    "applied_at": "2026-10-27T00:45:00Z"
+  },
+  "evidence": [
+    "evidence-containment-applied-020",
+    "evidence-original-repair-authorization-020",
+    "evidence-authorization-revocation-020",
+    "evidence-repair-started-after-revocation-020"
+  ],
+  "timestamp": "2026-10-27T01:35:00Z",
+  "expected_result": "FAIL"
+}
