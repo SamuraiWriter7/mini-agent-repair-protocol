@@ -1,0 +1,141 @@
+
+{
+  "schema_version": "0.3.0",
+  "lineage_id": "marp-lineage-hold-preserved-001",
+  "target_id": "ai-component-025",
+  "containment_id": "containment-ai-component-025",
+  "records": [
+    {
+      "event_id": "event-025-001",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/hold-preserved/event-01.json",
+      "operation_id": "op-authorization-025",
+      "target_id": "ai-component-025",
+      "actor_id": "external-authority-controller-001",
+      "event_type": "authorization_granted",
+      "previous_state": "observed",
+      "next_state": "authorized",
+      "timestamp": "2026-10-28T00:30:00Z",
+      "previous_event_id": null,
+      "authorization_id": "authorization-maintenance-025"
+    },
+    {
+      "event_id": "event-025-002",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/hold-preserved/event-02.json",
+      "operation_id": "op-containment-025",
+      "target_id": "ai-component-025",
+      "actor_id": "mini-agent-maintenance-025",
+      "event_type": "containment_applied",
+      "previous_state": "authorized",
+      "next_state": "contained",
+      "timestamp": "2026-10-28T00:35:00Z",
+      "previous_event_id": "event-025-001",
+      "authorization_id": "authorization-maintenance-025"
+    },
+    {
+      "event_id": "event-025-003",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/hold-preserved/event-03.json",
+      "operation_id": "op-repair-start-025",
+      "target_id": "ai-component-025",
+      "actor_id": "mini-agent-maintenance-025",
+      "event_type": "repair_started",
+      "previous_state": "contained",
+      "next_state": "repairing",
+      "timestamp": "2026-10-28T00:40:00Z",
+      "previous_event_id": "event-025-002",
+      "authorization_id": "authorization-maintenance-025"
+    },
+    {
+      "event_id": "event-025-004",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/hold-preserved/event-04.json",
+      "operation_id": "op-hold-025",
+      "target_id": "ai-component-025",
+      "actor_id": "external-safety-reviewer-001",
+      "event_type": "operation_held",
+      "previous_state": "repairing",
+      "next_state": "held",
+      "timestamp": "2026-10-28T00:45:00Z",
+      "previous_event_id": "event-025-003",
+      "hold_id": "hold-ai-component-025"
+    }
+  ],
+  "evidence_bindings": [
+    {
+      "evidence_id": "evidence-authorization-025",
+      "event_id": "event-025-001",
+      "operation_id": "op-authorization-025",
+      "target_id": "ai-component-025",
+      "evidence_type": "authorization",
+      "evidence_reference": "evidence://marp/025/authorization"
+    },
+    {
+      "evidence_id": "evidence-containment-025",
+      "event_id": "event-025-002",
+      "operation_id": "op-containment-025",
+      "target_id": "ai-component-025",
+      "evidence_type": "containment",
+      "evidence_reference": "evidence://marp/025/containment"
+    },
+    {
+      "evidence_id": "evidence-repair-start-025",
+      "event_id": "event-025-003",
+      "operation_id": "op-repair-start-025",
+      "target_id": "ai-component-025",
+      "evidence_type": "repair_execution",
+      "evidence_reference": "evidence://marp/025/repair-start"
+    },
+    {
+      "evidence_id": "evidence-hold-025",
+      "event_id": "event-025-004",
+      "operation_id": "op-hold-025",
+      "target_id": "ai-component-025",
+      "evidence_type": "hold",
+      "evidence_reference": "evidence://marp/025/hold"
+    }
+  ],
+  "authorization_bindings": [
+    {
+      "authorization_id": "authorization-maintenance-025",
+      "controller_id": "external-authority-controller-001",
+      "authorized_actor_id": "mini-agent-maintenance-025",
+      "authorized_operations": [
+        "contain",
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "issued_at": "2026-10-28T00:30:00Z",
+      "expires_at": "2026-10-28T02:00:00Z",
+      "status": "granted"
+    }
+  ],
+  "recovery_gate": {
+    "decision": "denied",
+    "evaluated_at": "2026-10-28T00:45:00Z",
+    "evaluated_event_id": "event-025-004",
+    "satisfied_conditions": [
+      "lineage_continuity",
+      "containment_exists",
+      "repair_authorized",
+      "no_revoked_authorization",
+      "no_expired_authorization",
+      "evidence_integrity",
+      "source_records_resolved"
+    ],
+    "blocking_conditions": [
+      "no_active_hold"
+    ],
+    "evidence_references": [
+      "evidence-authorization-025",
+      "evidence-containment-025",
+      "evidence-repair-start-025",
+      "evidence-hold-025"
+    ]
+  },
+  "evaluated_at": "2026-10-28T00:45:00Z",
+  "expected_result": "PASS"
+}
