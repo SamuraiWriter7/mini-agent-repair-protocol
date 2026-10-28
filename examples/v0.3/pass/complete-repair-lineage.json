@@ -1,0 +1,244 @@
+{
+  "schema_version": "0.3.0",
+  "lineage_id": "marp-lineage-complete-repair-001",
+  "target_id": "ai-component-023",
+  "containment_id": "containment-ai-component-023",
+  "records": [
+    {
+      "event_id": "event-023-001",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/complete-repair-lineage/event-01.json",
+      "operation_id": "op-authorization-023",
+      "target_id": "ai-component-023",
+      "actor_id": "external-authority-controller-001",
+      "event_type": "authorization_granted",
+      "previous_state": "observed",
+      "next_state": "authorized",
+      "timestamp": "2026-10-28T00:30:00Z",
+      "previous_event_id": null,
+      "authorization_id": "authorization-maintenance-023"
+    },
+    {
+      "event_id": "event-023-002",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/complete-repair-lineage/event-02.json",
+      "operation_id": "op-containment-023",
+      "target_id": "ai-component-023",
+      "actor_id": "mini-agent-maintenance-023",
+      "event_type": "containment_applied",
+      "previous_state": "authorized",
+      "next_state": "contained",
+      "timestamp": "2026-10-28T00:35:00Z",
+      "previous_event_id": "event-023-001",
+      "authorization_id": "authorization-maintenance-023"
+    },
+    {
+      "event_id": "event-023-003",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/complete-repair-lineage/event-03.json",
+      "operation_id": "op-repair-start-023",
+      "target_id": "ai-component-023",
+      "actor_id": "mini-agent-maintenance-023",
+      "event_type": "repair_started",
+      "previous_state": "contained",
+      "next_state": "repairing",
+      "timestamp": "2026-10-28T00:40:00Z",
+      "previous_event_id": "event-023-002",
+      "authorization_id": "authorization-maintenance-023"
+    },
+    {
+      "event_id": "event-023-004",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/complete-repair-lineage/event-04.json",
+      "operation_id": "op-repair-completion-023",
+      "target_id": "ai-component-023",
+      "actor_id": "mini-agent-maintenance-023",
+      "event_type": "repair_completed",
+      "previous_state": "repairing",
+      "next_state": "verification_pending",
+      "timestamp": "2026-10-28T00:50:00Z",
+      "previous_event_id": "event-023-003",
+      "authorization_id": "authorization-maintenance-023"
+    },
+    {
+      "event_id": "event-023-005",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/complete-repair-lineage/event-05.json",
+      "operation_id": "op-verification-023",
+      "target_id": "ai-component-023",
+      "actor_id": "independent-verifier-023",
+      "event_type": "verification_passed",
+      "previous_state": "verification_pending",
+      "next_state": "verified",
+      "timestamp": "2026-10-28T01:00:00Z",
+      "previous_event_id": "event-023-004",
+      "authorization_id": "authorization-verification-023",
+      "verification_id": "verification-023",
+      "repair_agent_id": "mini-agent-maintenance-023"
+    },
+    {
+      "event_id": "event-023-006",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/complete-repair-lineage/event-06.json",
+      "operation_id": "op-release-approval-023",
+      "target_id": "ai-component-023",
+      "actor_id": "external-authority-controller-001",
+      "event_type": "release_approved",
+      "previous_state": "verified",
+      "next_state": "verified",
+      "timestamp": "2026-10-28T01:10:00Z",
+      "previous_event_id": "event-023-005",
+      "authorization_id": "authorization-release-023",
+      "verification_id": "verification-023"
+    },
+    {
+      "event_id": "event-023-007",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/complete-repair-lineage/event-07.json",
+      "operation_id": "op-containment-release-023",
+      "target_id": "ai-component-023",
+      "actor_id": "mini-agent-release-023",
+      "event_type": "containment_released",
+      "previous_state": "verified",
+      "next_state": "released",
+      "timestamp": "2026-10-28T01:15:00Z",
+      "previous_event_id": "event-023-006",
+      "authorization_id": "authorization-release-023",
+      "verification_id": "verification-023"
+    }
+  ],
+  "evidence_bindings": [
+    {
+      "evidence_id": "evidence-authorization-023",
+      "event_id": "event-023-001",
+      "operation_id": "op-authorization-023",
+      "target_id": "ai-component-023",
+      "evidence_type": "authorization",
+      "evidence_reference": "evidence://marp/023/authorization"
+    },
+    {
+      "evidence_id": "evidence-containment-023",
+      "event_id": "event-023-002",
+      "operation_id": "op-containment-023",
+      "target_id": "ai-component-023",
+      "evidence_type": "containment",
+      "evidence_reference": "evidence://marp/023/containment"
+    },
+    {
+      "evidence_id": "evidence-repair-start-023",
+      "event_id": "event-023-003",
+      "operation_id": "op-repair-start-023",
+      "target_id": "ai-component-023",
+      "evidence_type": "repair_execution",
+      "evidence_reference": "evidence://marp/023/repair-start"
+    },
+    {
+      "evidence_id": "evidence-repair-completion-023",
+      "event_id": "event-023-004",
+      "operation_id": "op-repair-completion-023",
+      "target_id": "ai-component-023",
+      "evidence_type": "repair_completion",
+      "evidence_reference": "evidence://marp/023/repair-completion"
+    },
+    {
+      "evidence_id": "evidence-verification-023",
+      "event_id": "event-023-005",
+      "operation_id": "op-verification-023",
+      "target_id": "ai-component-023",
+      "evidence_type": "verification",
+      "evidence_reference": "evidence://marp/023/verification"
+    },
+    {
+      "evidence_id": "evidence-release-approval-023",
+      "event_id": "event-023-006",
+      "operation_id": "op-release-approval-023",
+      "target_id": "ai-component-023",
+      "evidence_type": "release_approval",
+      "evidence_reference": "evidence://marp/023/release-approval"
+    },
+    {
+      "evidence_id": "evidence-release-execution-023",
+      "event_id": "event-023-007",
+      "operation_id": "op-containment-release-023",
+      "target_id": "ai-component-023",
+      "evidence_type": "release_execution",
+      "evidence_reference": "evidence://marp/023/release-execution"
+    }
+  ],
+  "authorization_bindings": [
+    {
+      "authorization_id": "authorization-maintenance-023",
+      "controller_id": "external-authority-controller-001",
+      "authorized_actor_id": "mini-agent-maintenance-023",
+      "authorized_operations": [
+        "contain",
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "issued_at": "2026-10-28T00:30:00Z",
+      "expires_at": "2026-10-28T02:00:00Z",
+      "status": "granted"
+    },
+    {
+      "authorization_id": "authorization-verification-023",
+      "controller_id": "external-authority-controller-001",
+      "authorized_actor_id": "independent-verifier-023",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "issued_at": "2026-10-28T00:55:00Z",
+      "expires_at": "2026-10-28T02:00:00Z",
+      "status": "granted"
+    },
+    {
+      "authorization_id": "authorization-release-023",
+      "controller_id": "external-authority-controller-001",
+      "authorized_actor_id": "mini-agent-release-023",
+      "authorized_operations": [
+        "release"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "issued_at": "2026-10-28T01:10:00Z",
+      "expires_at": "2026-10-28T02:00:00Z",
+      "status": "granted"
+    }
+  ],
+  "recovery_gate": {
+    "decision": "allowed",
+    "evaluated_at": "2026-10-28T01:15:00Z",
+    "evaluated_event_id": "event-023-007",
+    "satisfied_conditions": [
+      "lineage_continuity",
+      "containment_exists",
+      "repair_authorized",
+      "repair_completed",
+      "independent_verification",
+      "verification_evidence",
+      "release_approved",
+      "release_authorized",
+      "no_active_hold",
+      "no_revoked_authorization",
+      "no_expired_authorization",
+      "evidence_integrity",
+      "source_records_resolved"
+    ],
+    "blocking_conditions": [],
+    "evidence_references": [
+      "evidence-authorization-023",
+      "evidence-containment-023",
+      "evidence-repair-completion-023",
+      "evidence-verification-023",
+      "evidence-release-approval-023",
+      "evidence-release-execution-023"
+    ]
+  },
+  "evaluated_at": "2026-10-28T01:15:00Z",
+  "expected_result": "PASS"
+}
