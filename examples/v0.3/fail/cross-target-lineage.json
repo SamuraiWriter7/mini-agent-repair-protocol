@@ -1,0 +1,117 @@
+{
+  "schema_version": "0.3.0",
+  "lineage_id": "marp-lineage-cross-target-001",
+  "target_id": "ai-component-031",
+  "containment_id": "containment-ai-component-031",
+  "records": [
+    {
+      "event_id": "event-031-001",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/cross-target-lineage/event-01.json",
+      "operation_id": "op-authorization-031",
+      "target_id": "ai-component-031",
+      "actor_id": "external-authority-controller-001",
+      "event_type": "authorization_granted",
+      "previous_state": "observed",
+      "next_state": "authorized",
+      "timestamp": "2026-10-28T00:20:00Z",
+      "previous_event_id": null,
+      "authorization_id": "authorization-maintenance-031"
+    },
+    {
+      "event_id": "event-031-002",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/cross-target-lineage/event-02.json",
+      "operation_id": "op-containment-031",
+      "target_id": "ai-component-031",
+      "actor_id": "mini-agent-maintenance-031",
+      "event_type": "containment_applied",
+      "previous_state": "authorized",
+      "next_state": "contained",
+      "timestamp": "2026-10-28T00:25:00Z",
+      "previous_event_id": "event-031-001",
+      "authorization_id": "authorization-maintenance-031"
+    },
+    {
+      "event_id": "event-031-003",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/cross-target-lineage/event-03.json",
+      "operation_id": "op-repair-start-031",
+      "target_id": "ai-component-999",
+      "actor_id": "mini-agent-maintenance-031",
+      "event_type": "repair_started",
+      "previous_state": "contained",
+      "next_state": "repairing",
+      "timestamp": "2026-10-28T00:30:00Z",
+      "previous_event_id": "event-031-002",
+      "authorization_id": "authorization-maintenance-031"
+    }
+  ],
+  "evidence_bindings": [
+    {
+      "evidence_id": "evidence-authorization-031",
+      "event_id": "event-031-001",
+      "operation_id": "op-authorization-031",
+      "target_id": "ai-component-031",
+      "evidence_type": "authorization",
+      "evidence_reference": "evidence://marp/031/authorization"
+    },
+    {
+      "evidence_id": "evidence-containment-031",
+      "event_id": "event-031-002",
+      "operation_id": "op-containment-031",
+      "target_id": "ai-component-031",
+      "evidence_type": "containment",
+      "evidence_reference": "evidence://marp/031/containment"
+    },
+    {
+      "evidence_id": "evidence-repair-start-031",
+      "event_id": "event-031-003",
+      "operation_id": "op-repair-start-031",
+      "target_id": "ai-component-999",
+      "evidence_type": "repair_execution",
+      "evidence_reference": "evidence://marp/999/repair-start"
+    }
+  ],
+  "authorization_bindings": [
+    {
+      "authorization_id": "authorization-maintenance-031",
+      "controller_id": "external-authority-controller-001",
+      "authorized_actor_id": "mini-agent-maintenance-031",
+      "authorized_operations": [
+        "contain",
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "issued_at": "2026-10-28T00:20:00Z",
+      "expires_at": "2026-10-28T02:00:00Z",
+      "status": "granted"
+    }
+  ],
+  "recovery_gate": {
+    "decision": "denied",
+    "evaluated_at": "2026-10-28T00:30:00Z",
+    "evaluated_event_id": "event-031-003",
+    "satisfied_conditions": [
+      "lineage_continuity",
+      "containment_exists",
+      "repair_authorized",
+      "no_active_hold",
+      "no_revoked_authorization",
+      "no_expired_authorization",
+      "source_records_resolved"
+    ],
+    "blocking_conditions": [
+      "evidence_integrity"
+    ],
+    "evidence_references": [
+      "evidence-authorization-031",
+      "evidence-containment-031",
+      "evidence-repair-start-031"
+    ]
+  },
+  "evaluated_at": "2026-10-28T00:30:00Z",
+  "expected_result": "FAIL"
+}
