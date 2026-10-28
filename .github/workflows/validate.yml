@@ -1,4 +1,4 @@
-name: Validate MARP v0.1-v0.2
+name: Validate MARP v0.1-v0.3
 
 "on":
   push:
@@ -16,7 +16,7 @@ jobs:
   validate:
     name: Validate MARP (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     strategy:
       fail-fast: false
@@ -42,73 +42,274 @@ jobs:
           cache: pip
           cache-dependency-path: requirements.txt
 
+      - name: Show environment
+        run: |
+          set -euo pipefail
+          python --version
+          python -m pip --version
+
       - name: Install validation dependencies
         run: |
           set -euo pipefail
+          python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-
-      - name: Check Python syntax
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/validate_examples.py
 
       - name: Check required files
         run: |
           set -euo pipefail
 
-          test -f schemas/repair-record.schema.json
-          test -f schemas/repair-lifecycle-v0.2.schema.json
-          test -f scripts/validate_examples.py
-          test -f requirements.txt
+          required_files=(
+            "requirements.txt"
+            "scripts/validate_examples.py"
+            "scripts/generate_v0.3_sources.py"
+            "schemas/repair-record.schema.json"
+            "schemas/repair-lifecycle-v0.2.schema.json"
+            "schemas/repair-lineage-v0.3.schema.json"
+            "schemas/hold-resolution-v0.3.schema.json"
+          )
 
-          test -d examples/v0.1/pass
-          test -d examples/v0.1/fail
-          test -d examples/v0.2/pass
-          test -d examples/v0.2/fail
+          for file in "${required_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              echo "[FATAL] Missing required file: $file"
+              exit 1
+            fi
+            echo "[FOUND] $file"
+          done
 
-          echo "[PASS] Required MARP files exist"
+          for version in v0.1 v0.2 v0.3; do
+            for category in pass fail; do
+              directory="examples/${version}/${category}"
 
-      - name: Validate MARP v0.1 and v0.2
+              if [[ ! -d "$directory" ]]; then
+                echo "[FATAL] Missing directory: $directory"
+                exit 1
+              fi
+
+              echo "[FOUND] $directory"
+            done
+          done
+
+      - name: Check Python syntax
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          scripts = (
+              Path("scripts/validate_examples.py"),
+              Path("scripts/generate_v0.3_sources.py"),
+          )
+
+          for path in scripts:
+              ast.parse(
+                  path.read_text(encoding="utf-8"),
+                  filename=str(path),
+              )
+              print(f"[syntax-ok] {path}")
+          PY
+
+      - name: Validate JSON Schemas
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from jsonschema import Draft202012Validator
+
+          files = (
+              "schemas/repair-record.schema.json",
+              "schemas/repair-lifecycle-v0.2.schema.json",
+              "schemas/repair-lineage-v0.3.schema.json",
+              "schemas/hold-resolution-v0.3.schema.json",
+          )
+
+          for filename in files:
+              path = Path(filename)
+
+              with path.open(encoding="utf-8") as stream:
+                  schema = json.load(stream)
+
+              Draft202012Validator.check_schema(schema)
+              print(f"[schema-ok] {path}")
+          PY
+
+      - name: Check fixture counts
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          from pathlib import Path
+
+          expected = {
+              "v0.1": (4, 6),
+              "v0.2": (6, 6),
+              "v0.3": (6, 8),
+          }
+
+          total = 0
+
+          for version, (pass_count, fail_count) in expected.items():
+              for category, count in (
+                  ("pass", pass_count),
+                  ("fail", fail_count),
+              ):
+                  directory = (
+                      Path("examples")
+                      / version
+                      / category
+                  )
+
+                  found = len(list(directory.glob("*.json")))
+
+                  print(
+                      f"[fixtures] {version}/{category}: "
+                      f"{found}/{count}"
+                  )
+
+                  if found != count:
+                      raise SystemExit(
+                          f"[FATAL] Unexpected fixture count: "
+                          f"{directory}"
+                      )
+
+                  total += found
+
+          if total != 36:
+              raise SystemExit(
+                  f"[FATAL] Expected 36 fixtures, got {total}"
+              )
+
+          print("[PASS] 36 fixture files found")
+          PY
+
+      - name: Generate MARP v0.3 source fixtures
+        run: |
+          set -euo pipefail
+
+          python scripts/generate_v0.3_sources.py \
+            | tee marp-source-generation.log
+
+      - name: Check generated source fixtures
+        run: |
+          set -euo pipefail
+
+          python scripts/generate_v0.3_sources.py --check \
+            | tee marp-source-check.log
+
+      - name: Run MARP v0.1-v0.3 validation
         run: |
           set -euo pipefail
 
           python scripts/validate_examples.py \
             | tee marp-validation.log
 
-          grep -Eq 'Matched[[:space:]]*:[[:space:]]*22$' \
-            marp-validation.log
+      - name: Verify validation summary
+        run: |
+          set -euo pipefail
 
-          grep -Eq 'Mismatched[[:space:]]*:[[:space:]]*0$' \
-            marp-validation.log
+          python - <<'PY'
+          from pathlib import Path
+          import re
 
-          echo "[PASS] All 22 MARP expectations matched"
+          log_path = Path("marp-validation.log")
 
-      - name: Publish validation summary
-        if: success()
+          if not log_path.is_file():
+              raise SystemExit(
+                  "[FATAL] Validation log not found"
+              )
+
+          content = log_path.read_text(
+              encoding="utf-8"
+          )
+
+          expected = {
+              "Total": 36,
+              "Matched": 36,
+              "Mismatched": 0,
+          }
+
+          for label, target in expected.items():
+              matches = re.findall(
+                  rf"(?m)^{re.escape(label)}:\s*(\d+)\s*$",
+                  content,
+              )
+
+              if len(matches) != 1:
+                  raise SystemExit(
+                      f"[FATAL] Invalid {label} summary"
+                  )
+
+              actual = int(matches[0])
+
+              if actual != target:
+                  raise SystemExit(
+                      f"[FATAL] {label}: "
+                      f"expected={target}, actual={actual}"
+                  )
+
+              print(f"[MATCH] {label}: {actual}")
+
+          success_marker = (
+              "[PASS] All MARP v0.1-v0.3 "
+              "expectations matched"
+          )
+
+          if success_marker not in content:
+              raise SystemExit(
+                  "[FATAL] Success marker missing"
+              )
+
+          print("[PASS] MARP integrated validation")
+          PY
+
+      - name: Publish job summary
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
           {
-            echo "## MARP Conformance Validation"
+            echo "## MARP v0.1-v0.3 Validation"
             echo ""
-            echo "| Item | Result |"
-            echo "|---|---|"
-            echo "| v0.1 examples | 10 |"
-            echo "| v0.2 examples | 12 |"
-            echo "| Total expected matches | 22 |"
-            echo "| Python | ${{ matrix.python-version }} |"
-            echo "| Validation | PASS |"
+            echo "- Python: \`${PYTHON_VERSION}\`"
+            echo "- Job status: \`${JOB_STATUS}\`"
+            echo "- Expected fixtures: **36**"
             echo ""
-            echo "### Validation Layers"
-            echo "- JSON Schema Draft 2020-12"
-            echo "- Semantic invariant checks"
-            echo "- Authorization lifecycle checks"
-            echo "- PASS/FAIL expectation matching"
+            echo "| Version | PASS fixtures | FAIL fixtures | Total |"
+            echo "| --- | ---: | ---: | ---: |"
+            echo "| v0.1 | 4 | 6 | 10 |"
+            echo "| v0.2 | 6 | 6 | 12 |"
+            echo "| v0.3 | 6 | 8 | 14 |"
+            echo "| **Total** | **16** | **20** | **36** |"
+            echo ""
+
+            if [[ -f marp-validation.log ]]; then
+              echo "### Actual validation result"
+              echo ""
+              echo '```text'
+
+              grep -E \
+                '^(Total|Matched|Mismatched):|^\[PASS\]|^\[FAIL\]' \
+                marp-validation.log || true
+
+              echo '```'
+            else
+              echo "Validation summary unavailable."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload validation log on failure
+      - name: Upload validation logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: marp-validation-python-${{ matrix.python-version }}
-          path: marp-validation.log
+          name: marp-validation-logs-py${{ matrix.python-version }}
+          path: |
+            marp-source-generation.log
+            marp-source-check.log
+            marp-validation.log
           if-no-files-found: ignore
           retention-days: 7
