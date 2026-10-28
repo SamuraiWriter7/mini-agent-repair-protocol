@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/marp/schemas/hold-resolution-v0.3.schema.json",
+  "title": "MARP Hold Resolution Record v0.3",
+  "description": "A versioned extension record for externally authorized resolution of an active safety hold without implicitly releasing containment or restarting repair.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "lifecycle_id",
+    "operation_id",
+    "target_id",
+    "containment_id",
+    "actor_id",
+    "event_type",
+    "previous_state",
+    "next_state",
+    "hold_id",
+    "authorization_id",
+    "authority",
+    "hold_resolution",
+    "evidence",
+    "timestamp"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "lifecycle_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "operation_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "target_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "containment_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "actor_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "event_type": {
+      "const": "hold_resolved"
+    },
+    "previous_state": {
+      "const": "held"
+    },
+    "next_state": {
+      "enum": [
+        "authorized",
+        "contained"
+      ]
+    },
+    "hold_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "authorization_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "authority": {
+      "$ref": "#/$defs/authority"
+    },
+    "hold_resolution": {
+      "$ref": "#/$defs/holdResolution"
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/identifier"
+      }
+    },
+    "timestamp": {
+      "$ref": "#/$defs/timestamp"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "next_state": {
+            "const": "contained"
+          }
+        },
+        "required": [
+          "next_state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "hold_resolution": {
+            "properties": {
+              "containment_status": {
+                "const": "active"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "next_state": {
+            "const": "authorized"
+          }
+        },
+        "required": [
+          "next_state"
+        ]
+      },
+      "then": {
+        "properties": {
+          "hold_resolution": {
+            "properties": {
+              "containment_status": {
+                "enum": [
+                  "not_applied",
+                  "active"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "controller_id",
+        "authorization_id",
+        "authorization_status",
+        "authorized_actor_id",
+        "authorized_operations",
+        "authorized_scopes",
+        "issued_at"
+      ],
+      "properties": {
+        "controller_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_status": {
+          "const": "granted"
+        },
+        "authorized_actor_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorized_operations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "contains": {
+            "const": "resolve_hold"
+          },
+          "items": {
+            "enum": [
+              "resolve_hold"
+            ]
+          }
+        },
+        "authorized_scopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "issued_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "expires_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      }
+    },
+    "holdResolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hold_id",
+        "previous_status",
+        "next_status",
+        "decision",
+        "review_authority_id",
+        "reason",
+        "resolution_evidence_ids",
+        "resolved_at",
+        "containment_status",
+        "repair_resume_authorized",
+        "containment_release_authorized"
+      ],
+      "properties": {
+        "hold_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "previous_status": {
+          "const": "active"
+        },
+        "next_status": {
+          "const": "resolved"
+        },
+        "decision": {
+          "const": "resolve"
+        },
+        "review_authority_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "resolution_evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "resolved_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "containment_status": {
+          "enum": [
+            "not_applied",
+            "active"
+          ]
+        },
+        "repair_resume_authorized": {
+          "const": false
+        },
+        "containment_release_authorized": {
+          "const": false
+        }
+      }
+    }
+  }
+}
