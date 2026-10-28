@@ -1,0 +1,142 @@
+{
+  "schema_version": "0.3.0",
+  "lineage_id": "marp-lineage-revoked-authorization-reuse-001",
+  "target_id": "ai-component-036",
+  "containment_id": "containment-ai-component-036",
+  "records": [
+    {
+      "event_id": "event-036-001",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/revoked-authorization-reuse/event-01.json",
+      "operation_id": "op-authorization-036",
+      "target_id": "ai-component-036",
+      "actor_id": "external-authority-controller-001",
+      "event_type": "authorization_granted",
+      "previous_state": "observed",
+      "next_state": "authorized",
+      "timestamp": "2026-10-28T00:20:00Z",
+      "previous_event_id": null,
+      "authorization_id": "authorization-maintenance-036"
+    },
+    {
+      "event_id": "event-036-002",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/revoked-authorization-reuse/event-02.json",
+      "operation_id": "op-containment-036",
+      "target_id": "ai-component-036",
+      "actor_id": "mini-agent-maintenance-036",
+      "event_type": "containment_applied",
+      "previous_state": "authorized",
+      "next_state": "contained",
+      "timestamp": "2026-10-28T00:25:00Z",
+      "previous_event_id": "event-036-001",
+      "authorization_id": "authorization-maintenance-036"
+    },
+    {
+      "event_id": "event-036-003",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/revoked-authorization-reuse/event-03.json",
+      "operation_id": "op-authorization-revocation-036",
+      "target_id": "ai-component-036",
+      "actor_id": "external-authority-controller-001",
+      "event_type": "authorization_revoked",
+      "previous_state": "contained",
+      "next_state": "held",
+      "timestamp": "2026-10-28T00:30:00Z",
+      "previous_event_id": "event-036-002",
+      "authorization_id": "authorization-maintenance-036",
+      "hold_id": "hold-ai-component-036"
+    },
+    {
+      "event_id": "event-036-004",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/revoked-authorization-reuse/event-04.json",
+      "operation_id": "op-repair-start-036",
+      "target_id": "ai-component-036",
+      "actor_id": "mini-agent-maintenance-036",
+      "event_type": "repair_started",
+      "previous_state": "contained",
+      "next_state": "repairing",
+      "timestamp": "2026-10-28T00:35:00Z",
+      "previous_event_id": "event-036-003",
+      "authorization_id": "authorization-maintenance-036"
+    }
+  ],
+  "evidence_bindings": [
+    {
+      "evidence_id": "evidence-authorization-036",
+      "event_id": "event-036-001",
+      "operation_id": "op-authorization-036",
+      "target_id": "ai-component-036",
+      "evidence_type": "authorization",
+      "evidence_reference": "evidence://marp/036/authorization"
+    },
+    {
+      "evidence_id": "evidence-containment-036",
+      "event_id": "event-036-002",
+      "operation_id": "op-containment-036",
+      "target_id": "ai-component-036",
+      "evidence_type": "containment",
+      "evidence_reference": "evidence://marp/036/containment"
+    },
+    {
+      "evidence_id": "evidence-revocation-036",
+      "event_id": "event-036-003",
+      "operation_id": "op-authorization-revocation-036",
+      "target_id": "ai-component-036",
+      "evidence_type": "revocation",
+      "evidence_reference": "evidence://marp/036/revocation"
+    },
+    {
+      "evidence_id": "evidence-repair-start-036",
+      "event_id": "event-036-004",
+      "operation_id": "op-repair-start-036",
+      "target_id": "ai-component-036",
+      "evidence_type": "repair_execution",
+      "evidence_reference": "evidence://marp/036/repair-start"
+    }
+  ],
+  "authorization_bindings": [
+    {
+      "authorization_id": "authorization-maintenance-036",
+      "controller_id": "external-authority-controller-001",
+      "authorized_actor_id": "mini-agent-maintenance-036",
+      "authorized_operations": [
+        "contain",
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "issued_at": "2026-10-28T00:20:00Z",
+      "expires_at": "2026-10-28T02:00:00Z",
+      "revoked_at": "2026-10-28T00:30:00Z",
+      "status": "revoked"
+    }
+  ],
+  "recovery_gate": {
+    "decision": "denied",
+    "evaluated_at": "2026-10-28T00:35:00Z",
+    "evaluated_event_id": "event-036-004",
+    "satisfied_conditions": [
+      "containment_exists",
+      "no_expired_authorization",
+      "evidence_integrity",
+      "source_records_resolved"
+    ],
+    "blocking_conditions": [
+      "lineage_continuity",
+      "repair_authorized",
+      "no_active_hold",
+      "no_revoked_authorization"
+    ],
+    "evidence_references": [
+      "evidence-authorization-036",
+      "evidence-containment-036",
+      "evidence-revocation-036",
+      "evidence-repair-start-036"
+    ]
+  },
+  "evaluated_at": "2026-10-28T00:35:00Z",
+  "expected_result": "FAIL"
+}
