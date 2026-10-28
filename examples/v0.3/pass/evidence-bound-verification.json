@@ -1,0 +1,183 @@
+{
+  "schema_version": "0.3.0",
+  "lineage_id": "marp-lineage-evidence-bound-verification-001",
+  "target_id": "ai-component-028",
+  "containment_id": "containment-ai-component-028",
+  "records": [
+    {
+      "event_id": "event-028-001",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/evidence-bound-verification/event-01.json",
+      "operation_id": "op-authorization-028",
+      "target_id": "ai-component-028",
+      "actor_id": "external-authority-controller-001",
+      "event_type": "authorization_granted",
+      "previous_state": "observed",
+      "next_state": "authorized",
+      "timestamp": "2026-10-28T00:20:00Z",
+      "previous_event_id": null,
+      "authorization_id": "authorization-repair-028"
+    },
+    {
+      "event_id": "event-028-002",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/evidence-bound-verification/event-02.json",
+      "operation_id": "op-containment-028",
+      "target_id": "ai-component-028",
+      "actor_id": "mini-agent-repair-028",
+      "event_type": "containment_applied",
+      "previous_state": "authorized",
+      "next_state": "contained",
+      "timestamp": "2026-10-28T00:25:00Z",
+      "previous_event_id": "event-028-001",
+      "authorization_id": "authorization-repair-028"
+    },
+    {
+      "event_id": "event-028-003",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/evidence-bound-verification/event-03.json",
+      "operation_id": "op-repair-start-028",
+      "target_id": "ai-component-028",
+      "actor_id": "mini-agent-repair-028",
+      "event_type": "repair_started",
+      "previous_state": "contained",
+      "next_state": "repairing",
+      "timestamp": "2026-10-28T00:30:00Z",
+      "previous_event_id": "event-028-002",
+      "authorization_id": "authorization-repair-028"
+    },
+    {
+      "event_id": "event-028-004",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/evidence-bound-verification/event-04.json",
+      "operation_id": "op-repair-completion-028",
+      "target_id": "ai-component-028",
+      "actor_id": "mini-agent-repair-028",
+      "event_type": "repair_completed",
+      "previous_state": "repairing",
+      "next_state": "verification_pending",
+      "timestamp": "2026-10-28T00:40:00Z",
+      "previous_event_id": "event-028-003",
+      "authorization_id": "authorization-repair-028"
+    },
+    {
+      "event_id": "event-028-005",
+      "source_version": "0.2.0",
+      "record_reference": "examples/v0.3/sources/evidence-bound-verification/event-05.json",
+      "operation_id": "op-verification-028",
+      "target_id": "ai-component-028",
+      "actor_id": "independent-verifier-028",
+      "event_type": "verification_passed",
+      "previous_state": "verification_pending",
+      "next_state": "verified",
+      "timestamp": "2026-10-28T00:50:00Z",
+      "previous_event_id": "event-028-004",
+      "authorization_id": "authorization-verification-028",
+      "verification_id": "verification-028",
+      "repair_agent_id": "mini-agent-repair-028"
+    }
+  ],
+  "evidence_bindings": [
+    {
+      "evidence_id": "evidence-authorization-028",
+      "event_id": "event-028-001",
+      "operation_id": "op-authorization-028",
+      "target_id": "ai-component-028",
+      "evidence_type": "authorization",
+      "evidence_reference": "evidence://marp/028/authorization"
+    },
+    {
+      "evidence_id": "evidence-containment-028",
+      "event_id": "event-028-002",
+      "operation_id": "op-containment-028",
+      "target_id": "ai-component-028",
+      "evidence_type": "containment",
+      "evidence_reference": "evidence://marp/028/containment"
+    },
+    {
+      "evidence_id": "evidence-repair-start-028",
+      "event_id": "event-028-003",
+      "operation_id": "op-repair-start-028",
+      "target_id": "ai-component-028",
+      "evidence_type": "repair_execution",
+      "evidence_reference": "evidence://marp/028/repair-start"
+    },
+    {
+      "evidence_id": "evidence-repair-completion-028",
+      "event_id": "event-028-004",
+      "operation_id": "op-repair-completion-028",
+      "target_id": "ai-component-028",
+      "evidence_type": "repair_completion",
+      "evidence_reference": "evidence://marp/028/repair-completion"
+    },
+    {
+      "evidence_id": "evidence-verification-028",
+      "event_id": "event-028-005",
+      "operation_id": "op-verification-028",
+      "target_id": "ai-component-028",
+      "evidence_type": "verification",
+      "evidence_reference": "evidence://marp/028/verification"
+    }
+  ],
+  "authorization_bindings": [
+    {
+      "authorization_id": "authorization-repair-028",
+      "controller_id": "external-authority-controller-001",
+      "authorized_actor_id": "mini-agent-repair-028",
+      "authorized_operations": [
+        "contain",
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "issued_at": "2026-10-28T00:20:00Z",
+      "expires_at": "2026-10-28T02:00:00Z",
+      "status": "granted"
+    },
+    {
+      "authorization_id": "authorization-verification-028",
+      "controller_id": "external-authority-controller-001",
+      "authorized_actor_id": "independent-verifier-028",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "issued_at": "2026-10-28T00:45:00Z",
+      "expires_at": "2026-10-28T02:00:00Z",
+      "status": "granted"
+    }
+  ],
+  "recovery_gate": {
+    "decision": "indeterminate",
+    "evaluated_at": "2026-10-28T00:50:00Z",
+    "evaluated_event_id": "event-028-005",
+    "satisfied_conditions": [
+      "lineage_continuity",
+      "containment_exists",
+      "repair_authorized",
+      "repair_completed",
+      "independent_verification",
+      "verification_evidence",
+      "no_active_hold",
+      "no_revoked_authorization",
+      "no_expired_authorization",
+      "evidence_integrity",
+      "source_records_resolved"
+    ],
+    "blocking_conditions": [
+      "release_approved",
+      "release_authorized"
+    ],
+    "evidence_references": [
+      "evidence-authorization-028",
+      "evidence-containment-028",
+      "evidence-repair-completion-028",
+      "evidence-verification-028"
+    ]
+  },
+  "evaluated_at": "2026-10-28T00:50:00Z",
+  "expected_result": "PASS"
+}
