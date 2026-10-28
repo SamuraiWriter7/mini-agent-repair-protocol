@@ -1,0 +1,710 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MARP Repair Lineage Bundle v0.3",
+  "description": "A bounded repair lineage bundle for causal verification, evidence binding, hold resolution, and recovery gate evaluation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "lineage_id",
+    "target_id",
+    "containment_id",
+    "records",
+    "evidence_bindings",
+    "recovery_gate",
+    "evaluated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.3.0"
+    },
+    "lineage_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "target_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "containment_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "records": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/lineageRecord"
+      }
+    },
+    "evidence_bindings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/evidenceBinding"
+      }
+    },
+    "authorization_bindings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/authorizationBinding"
+      }
+    },
+    "recovery_gate": {
+      "$ref": "#/$defs/recoveryGate"
+    },
+    "evaluated_at": {
+      "$ref": "#/$defs/timestamp"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lifecycleState": {
+      "enum": [
+        "observed",
+        "authorized",
+        "held",
+        "contained",
+        "repairing",
+        "verification_pending",
+        "verified",
+        "released",
+        "failed"
+      ]
+    },
+    "eventType": {
+      "enum": [
+        "authorization_granted",
+        "authorization_revoked",
+        "authorization_expired",
+        "operation_held",
+        "containment_applied",
+        "repair_started",
+        "repair_completed",
+        "verification_passed",
+        "verification_failed",
+        "release_approved",
+        "containment_released",
+        "hold_resolved"
+      ]
+    },
+    "lineageRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "source_version",
+        "record_reference",
+        "operation_id",
+        "target_id",
+        "actor_id",
+        "event_type",
+        "previous_state",
+        "next_state",
+        "timestamp",
+        "previous_event_id"
+      ],
+      "properties": {
+        "event_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "source_version": {
+          "enum": [
+            "0.2.0",
+            "0.3.0"
+          ]
+        },
+        "record_reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "operation_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "target_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "actor_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "event_type": {
+          "$ref": "#/$defs/eventType"
+        },
+        "previous_state": {
+          "$ref": "#/$defs/lifecycleState"
+        },
+        "next_state": {
+          "$ref": "#/$defs/lifecycleState"
+        },
+        "timestamp": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "previous_event_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "hold_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "repair_agent_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "verification_id": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "authorization_granted"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "previous_state": {
+                "const": "observed"
+              },
+              "next_state": {
+                "const": "authorized"
+              }
+            },
+            "required": [
+              "authorization_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "containment_applied"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "previous_state": {
+                "const": "authorized"
+              },
+              "next_state": {
+                "const": "contained"
+              }
+            },
+            "required": [
+              "authorization_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "repair_started"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "previous_state": {
+                "const": "contained"
+              },
+              "next_state": {
+                "const": "repairing"
+              }
+            },
+            "required": [
+              "authorization_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "repair_completed"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "previous_state": {
+                "const": "repairing"
+              },
+              "next_state": {
+                "const": "verification_pending"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "verification_passed"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "previous_state": {
+                "const": "verification_pending"
+              },
+              "next_state": {
+                "const": "verified"
+              }
+            },
+            "required": [
+              "verification_id",
+              "repair_agent_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "verification_failed"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "previous_state": {
+                "const": "verification_pending"
+              },
+              "next_state": {
+                "const": "failed"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "release_approved"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "previous_state": {
+                "const": "verified"
+              },
+              "next_state": {
+                "const": "verified"
+              }
+            },
+            "required": [
+              "authorization_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "containment_released"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "previous_state": {
+                "const": "verified"
+              },
+              "next_state": {
+                "const": "released"
+              }
+            },
+            "required": [
+              "authorization_id",
+              "verification_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "operation_held"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "previous_state": {
+                "enum": [
+                  "observed",
+                  "authorized",
+                  "contained",
+                  "repairing",
+                  "verification_pending"
+                ]
+              },
+              "next_state": {
+                "const": "held"
+              }
+            },
+            "required": [
+              "hold_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "enum": [
+                  "authorization_revoked",
+                  "authorization_expired"
+                ]
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "previous_state": {
+                "enum": [
+                  "authorized",
+                  "contained",
+                  "repairing",
+                  "verification_pending"
+                ]
+              },
+              "next_state": {
+                "const": "held"
+              }
+            },
+            "required": [
+              "authorization_id",
+              "hold_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "hold_resolved"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_version": {
+                "const": "0.3.0"
+              },
+              "previous_state": {
+                "const": "held"
+              },
+              "next_state": {
+                "enum": [
+                  "authorized",
+                  "contained"
+                ]
+              }
+            },
+            "required": [
+              "hold_id",
+              "authorization_id"
+            ]
+          }
+        }
+      ]
+    },
+    "evidenceBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "event_id",
+        "operation_id",
+        "target_id",
+        "evidence_type",
+        "evidence_reference"
+      ],
+      "properties": {
+        "evidence_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "event_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "operation_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "target_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "evidence_type": {
+          "enum": [
+            "diagnostic",
+            "authorization",
+            "containment",
+            "repair_execution",
+            "repair_completion",
+            "verification",
+            "hold",
+            "hold_resolution",
+            "release_approval",
+            "release_execution",
+            "revocation",
+            "expiration"
+          ]
+        },
+        "evidence_reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      }
+    },
+    "authorizationBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authorization_id",
+        "controller_id",
+        "authorized_actor_id",
+        "authorized_operations",
+        "authorized_scopes",
+        "issued_at",
+        "status"
+      ],
+      "properties": {
+        "authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "controller_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorized_actor_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorized_operations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "diagnose",
+              "contain",
+              "repair",
+              "verify",
+              "replace",
+              "release",
+              "resolve_hold"
+            ]
+          }
+        },
+        "authorized_scopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "issued_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "expires_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "revoked_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "status": {
+          "enum": [
+            "granted",
+            "pending",
+            "denied",
+            "revoked",
+            "expired"
+          ]
+        }
+      }
+    },
+    "recoveryGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "evaluated_at",
+        "evaluated_event_id",
+        "satisfied_conditions",
+        "blocking_conditions",
+        "evidence_references"
+      ],
+      "properties": {
+        "decision": {
+          "enum": [
+            "allowed",
+            "denied",
+            "indeterminate"
+          ]
+        },
+        "evaluated_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "evaluated_event_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "satisfied_conditions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/gateCondition"
+          }
+        },
+        "blocking_conditions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/gateCondition"
+          }
+        },
+        "evidence_references": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "allowed"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "blocking_conditions": {
+                "maxItems": 0
+              },
+              "evidence_references": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "denied"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "blocking_conditions": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "indeterminate"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "blocking_conditions": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "gateCondition": {
+      "enum": [
+        "lineage_continuity",
+        "containment_exists",
+        "repair_authorized",
+        "repair_completed",
+        "independent_verification",
+        "verification_evidence",
+        "release_approved",
+        "release_authorized",
+        "no_active_hold",
+        "no_revoked_authorization",
+        "no_expired_authorization",
+        "evidence_integrity",
+        "source_records_resolved"
+      ]
+    }
+  }
+}
