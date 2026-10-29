@@ -1,0 +1,140 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-self-verification-052",
+  "target_id": "ai-component-052",
+  "lineage_id": "marp-lineage-self-verification-052",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-052",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-052",
+    "authorized_scopes": [
+      "component-runtime-configuration",
+      "component-verification",
+      "component-reconciliation"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 2,
+    "coordinator_id": "mini-agent-coordinator-052"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-repair-verifier-052",
+      "role": "repair",
+      "authorized_operations": [
+        "repair",
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration",
+        "component-verification"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-repair-verifier-052",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-reconciliation-052",
+      "role": "reconciliation",
+      "authorized_operations": [
+        "reconcile"
+      ],
+      "authorized_scopes": [
+        "component-reconciliation"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-reconciliation-052",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-repair-052",
+      "assigned_agent_id": "mini-agent-repair-verifier-052",
+      "operation": "repair",
+      "target_id": "ai-component-052",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-repair-verifier-052",
+      "evidence_ids": [
+        "evidence-repair-052"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-repair-052"
+      ],
+      "started_at": "2026-10-29T00:20:00Z",
+      "completed_at": "2026-10-29T00:40:00Z"
+    },
+    {
+      "task_id": "task-verify-052",
+      "assigned_agent_id": "mini-agent-repair-verifier-052",
+      "operation": "verify",
+      "target_id": "ai-component-052",
+      "resource_scope": "component-verification",
+      "access_mode": "read",
+      "depends_on": [
+        "task-repair-052"
+      ],
+      "status": "completed",
+      "authorization_id": "authorization-repair-verifier-052",
+      "evidence_ids": [
+        "evidence-self-verification-052"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-verification-052"
+      ],
+      "started_at": "2026-10-29T00:45:00Z",
+      "completed_at": "2026-10-29T00:55:00Z"
+    },
+    {
+      "task_id": "task-reconcile-052",
+      "assigned_agent_id": "mini-agent-reconciliation-052",
+      "operation": "reconcile",
+      "target_id": "ai-component-052",
+      "resource_scope": "component-reconciliation",
+      "access_mode": "read",
+      "depends_on": [
+        "task-repair-052",
+        "task-verify-052"
+      ],
+      "status": "completed",
+      "authorization_id": "authorization-reconciliation-052",
+      "evidence_ids": [
+        "evidence-reconciliation-052"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-reconciliation-052"
+      ],
+      "started_at": "2026-10-29T01:00:00Z",
+      "completed_at": "2026-10-29T01:05:00Z"
+    }
+  ],
+  "conflicts": [],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-self-verification-052",
+    "coordination_id": "marp-coordination-self-verification-052",
+    "considered_task_ids": [
+      "task-repair-052",
+      "task-verify-052",
+      "task-reconcile-052"
+    ],
+    "verified_task_ids": [
+      "task-repair-052"
+    ],
+    "unresolved_task_ids": [],
+    "conflict_ids": [],
+    "decision": "accepted",
+    "evidence_ids": [
+      "evidence-repair-052",
+      "evidence-self-verification-052",
+      "evidence-reconciliation-052"
+    ],
+    "evaluated_at": "2026-10-29T01:10:00Z"
+  },
+  "evaluated_at": "2026-10-29T01:10:00Z",
+  "expected_result": "FAIL"
+}
