@@ -1,0 +1,150 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-006",
+  "target_id": "ai-component-046",
+  "lineage_id": "marp-lineage-revocation-suspension-046",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-046",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-046",
+    "authorized_scopes": [
+      "component-diagnostics",
+      "component-runtime-configuration",
+      "component-verification"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 2,
+    "coordinator_id": "mini-agent-coordinator-046"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-diagnostic-046",
+      "role": "diagnostic",
+      "authorized_operations": [
+        "diagnose"
+      ],
+      "authorized_scopes": [
+        "component-diagnostics"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-diagnostic-046",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-repair-046",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "revoked",
+      "authorization_id": "authorization-repair-046",
+      "authorization_expires_at": "2026-10-29T01:30:00Z",
+      "authorization_revoked_at": "2026-10-29T00:35:00Z"
+    },
+    {
+      "agent_id": "mini-agent-verification-046",
+      "role": "verification",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-verification"
+      ],
+      "assignment_status": "held",
+      "authorization_id": "authorization-verification-046",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-diagnose-046",
+      "assigned_agent_id": "mini-agent-diagnostic-046",
+      "operation": "diagnose",
+      "target_id": "ai-component-046",
+      "resource_scope": "component-diagnostics",
+      "access_mode": "read",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-diagnostic-046",
+      "evidence_ids": [
+        "evidence-diagnostic-046"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-diagnostic-046"
+      ],
+      "started_at": "2026-10-29T00:20:00Z",
+      "completed_at": "2026-10-29T00:30:00Z"
+    },
+    {
+      "task_id": "task-repair-046",
+      "assigned_agent_id": "mini-agent-repair-046",
+      "operation": "repair",
+      "target_id": "ai-component-046",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [
+        "task-diagnose-046"
+      ],
+      "status": "held",
+      "authorization_id": "authorization-repair-046",
+      "evidence_ids": [
+        "evidence-repair-authorization-revoked-046"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-revocation-046"
+      ],
+      "held_at": "2026-10-29T00:35:00Z"
+    },
+    {
+      "task_id": "task-verify-046",
+      "assigned_agent_id": "mini-agent-verification-046",
+      "operation": "verify",
+      "target_id": "ai-component-046",
+      "resource_scope": "component-verification",
+      "access_mode": "read",
+      "depends_on": [
+        "task-repair-046"
+      ],
+      "status": "held",
+      "authorization_id": "authorization-verification-046",
+      "evidence_ids": [
+        "evidence-dependent-task-suspended-046"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-verification-hold-046"
+      ],
+      "held_at": "2026-10-29T00:36:00Z"
+    }
+  ],
+  "conflicts": [],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-revocation-suspension-046",
+    "coordination_id": "marp-coordination-006",
+    "considered_task_ids": [
+      "task-diagnose-046",
+      "task-repair-046",
+      "task-verify-046"
+    ],
+    "verified_task_ids": [],
+    "unresolved_task_ids": [
+      "task-repair-046",
+      "task-verify-046"
+    ],
+    "conflict_ids": [],
+    "decision": "held",
+    "evidence_ids": [
+      "evidence-diagnostic-046",
+      "evidence-repair-authorization-revoked-046",
+      "evidence-dependent-task-suspended-046"
+    ],
+    "evaluated_at": "2026-10-29T00:40:00Z"
+  },
+  "evaluated_at": "2026-10-29T00:40:00Z",
+  "expected_result": "PASS"
+}
