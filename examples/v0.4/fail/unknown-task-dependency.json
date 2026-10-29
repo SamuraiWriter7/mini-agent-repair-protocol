@@ -1,0 +1,107 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-unknown-dependency-048",
+  "target_id": "ai-component-048",
+  "lineage_id": "marp-lineage-unknown-dependency-048",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-048",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-048",
+    "authorized_scopes": [
+      "component-diagnostics",
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 2,
+    "coordinator_id": "mini-agent-coordinator-048"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-diagnostic-048",
+      "role": "diagnostic",
+      "authorized_operations": [
+        "diagnose"
+      ],
+      "authorized_scopes": [
+        "component-diagnostics"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-diagnostic-048",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-repair-048",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "active",
+      "authorization_id": "authorization-repair-048",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-diagnose-048",
+      "assigned_agent_id": "mini-agent-diagnostic-048",
+      "operation": "diagnose",
+      "target_id": "ai-component-048",
+      "resource_scope": "component-diagnostics",
+      "access_mode": "read",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-diagnostic-048",
+      "evidence_ids": [
+        "evidence-diagnostic-048"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-diagnostic-048"
+      ],
+      "started_at": "2026-10-29T00:20:00Z",
+      "completed_at": "2026-10-29T00:30:00Z"
+    },
+    {
+      "task_id": "task-repair-048",
+      "assigned_agent_id": "mini-agent-repair-048",
+      "operation": "repair",
+      "target_id": "ai-component-048",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [
+        "task-diagnose-048",
+        "task-containment-999"
+      ],
+      "status": "pending",
+      "authorization_id": "authorization-repair-048",
+      "evidence_ids": [],
+      "lineage_event_ids": []
+    }
+  ],
+  "conflicts": [],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-unknown-dependency-048",
+    "coordination_id": "marp-coordination-unknown-dependency-048",
+    "considered_task_ids": [
+      "task-diagnose-048",
+      "task-repair-048"
+    ],
+    "verified_task_ids": [],
+    "unresolved_task_ids": [
+      "task-repair-048"
+    ],
+    "conflict_ids": [],
+    "decision": "rejected",
+    "evidence_ids": [
+      "evidence-diagnostic-048"
+    ],
+    "evaluated_at": "2026-10-29T00:35:00Z"
+  },
+  "evaluated_at": "2026-10-29T00:35:00Z",
+  "expected_result": "FAIL"
+}
