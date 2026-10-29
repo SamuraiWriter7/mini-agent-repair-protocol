@@ -1,0 +1,641 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MARP Repair Coordination Bundle v0.4",
+  "description": "A bounded coordination bundle for multiple specialized mini-agents, task dependencies, resource conflicts, authorization boundaries, concurrency budgets, and independent reconciliation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "coordination_id",
+    "target_id",
+    "lineage_id",
+    "policy_id",
+    "authority",
+    "agents",
+    "tasks",
+    "conflicts",
+    "reconciliation",
+    "evaluated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.4.0"
+    },
+    "coordination_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "target_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "lineage_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "policy_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "authority": {
+      "$ref": "#/$defs/coordinationAuthority"
+    },
+    "agents": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/agentAssignment"
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/$defs/repairTask"
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "$ref": "#/$defs/conflictRecord"
+      }
+    },
+    "reconciliation": {
+      "$ref": "#/$defs/reconciliation"
+    },
+    "evaluated_at": {
+      "$ref": "#/$defs/timestamp"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "agentRole": {
+      "enum": [
+        "diagnostic",
+        "containment",
+        "repair",
+        "verification",
+        "reconciliation"
+      ]
+    },
+    "operationType": {
+      "enum": [
+        "diagnose",
+        "contain",
+        "repair",
+        "verify",
+        "reconcile"
+      ]
+    },
+    "taskStatus": {
+      "enum": [
+        "pending",
+        "ready",
+        "running",
+        "held",
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "accessMode": {
+      "enum": [
+        "read",
+        "write",
+        "exclusive"
+      ]
+    },
+    "coordinationAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "controller_id",
+        "coordination_authorization_id",
+        "authorization_status",
+        "authorized_target_id",
+        "authorized_scopes",
+        "issued_at",
+        "max_concurrency"
+      ],
+      "properties": {
+        "controller_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "coordination_authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_status": {
+          "enum": [
+            "granted",
+            "pending",
+            "denied",
+            "revoked",
+            "expired"
+          ]
+        },
+        "authorized_target_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorized_scopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "issued_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "expires_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "revoked_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "max_concurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "coordinator_id": {
+          "$ref": "#/$defs/identifier"
+        }
+      }
+    },
+    "agentAssignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_id",
+        "role",
+        "authorized_operations",
+        "authorized_scopes",
+        "assignment_status"
+      ],
+      "properties": {
+        "agent_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "role": {
+          "$ref": "#/$defs/agentRole"
+        },
+        "authorized_operations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/operationType"
+          }
+        },
+        "authorized_scopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "assignment_status": {
+          "enum": [
+            "active",
+            "held",
+            "completed",
+            "revoked"
+          ]
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_expires_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "authorization_revoked_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      }
+    },
+    "repairTask": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "assigned_agent_id",
+        "operation",
+        "target_id",
+        "resource_scope",
+        "access_mode",
+        "depends_on",
+        "status",
+        "authorization_id",
+        "evidence_ids"
+      ],
+      "properties": {
+        "task_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "assigned_agent_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "operation": {
+          "$ref": "#/$defs/operationType"
+        },
+        "target_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "resource_scope": {
+          "$ref": "#/$defs/identifier"
+        },
+        "access_mode": {
+          "$ref": "#/$defs/accessMode"
+        },
+        "depends_on": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "status": {
+          "$ref": "#/$defs/taskStatus"
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "lineage_event_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "started_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "completed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "held_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "failure_reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "completed"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "completed_at"
+            ],
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "running"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "started_at"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "held"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "held_at"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "failed"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "failure_reason"
+            ]
+          }
+        }
+      ]
+    },
+    "conflictRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "conflict_id",
+        "task_ids",
+        "resource_scope",
+        "conflict_type",
+        "disposition",
+        "detected_at"
+      ],
+      "properties": {
+        "conflict_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "task_ids": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "resource_scope": {
+          "$ref": "#/$defs/identifier"
+        },
+        "conflict_type": {
+          "enum": [
+            "write_write",
+            "read_write",
+            "exclusive_overlap",
+            "operation_incompatibility",
+            "authority_scope_conflict"
+          ]
+        },
+        "disposition": {
+          "enum": [
+            "blocked",
+            "serialized",
+            "externally_resolved"
+          ]
+        },
+        "detected_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "resolution": {
+          "$ref": "#/$defs/conflictResolution"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "disposition": {
+                "const": "serialized"
+              }
+            },
+            "required": [
+              "disposition"
+            ]
+          },
+          "then": {
+            "required": [
+              "resolution"
+            ],
+            "properties": {
+              "resolution": {
+                "required": [
+                  "execution_order"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "disposition": {
+                "const": "externally_resolved"
+              }
+            },
+            "required": [
+              "disposition"
+            ]
+          },
+          "then": {
+            "required": [
+              "resolution"
+            ],
+            "properties": {
+              "resolution": {
+                "required": [
+                  "resolver_id",
+                  "authorization_id",
+                  "policy_id",
+                  "evidence_ids",
+                  "resolved_at"
+                ],
+                "properties": {
+                  "evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "conflictResolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resolver_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "policy_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "execution_order": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "resolved_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      }
+    },
+    "reconciliation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reconciliation_id",
+        "coordination_id",
+        "considered_task_ids",
+        "verified_task_ids",
+        "unresolved_task_ids",
+        "conflict_ids",
+        "decision",
+        "evidence_ids",
+        "evaluated_at"
+      ],
+      "properties": {
+        "reconciliation_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "coordination_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "considered_task_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "verified_task_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "unresolved_task_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "conflict_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "decision": {
+          "enum": [
+            "accepted",
+            "held",
+            "rejected",
+            "indeterminate"
+          ]
+        },
+        "evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "evaluated_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "accepted"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "unresolved_task_ids": {
+                "maxItems": 0
+              },
+              "evidence_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "held"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "unresolved_task_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
