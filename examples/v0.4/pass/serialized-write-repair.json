@@ -1,0 +1,172 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-003",
+  "target_id": "ai-component-043",
+  "lineage_id": "marp-lineage-serialized-repair-043",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-043",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-043",
+    "authorized_scopes": [
+      "component-runtime-configuration",
+      "component-verification"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 2,
+    "coordinator_id": "mini-agent-coordinator-043"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-repair-a-043",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-repair-a-043",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-repair-b-043",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-repair-b-043",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-verification-043",
+      "role": "verification",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-verification"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-verification-043",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-repair-a-043",
+      "assigned_agent_id": "mini-agent-repair-a-043",
+      "operation": "repair",
+      "target_id": "ai-component-043",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-repair-a-043",
+      "evidence_ids": [
+        "evidence-repair-a-043"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-repair-a-043"
+      ],
+      "started_at": "2026-10-29T00:20:00Z",
+      "completed_at": "2026-10-29T00:35:00Z"
+    },
+    {
+      "task_id": "task-repair-b-043",
+      "assigned_agent_id": "mini-agent-repair-b-043",
+      "operation": "repair",
+      "target_id": "ai-component-043",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [
+        "task-repair-a-043"
+      ],
+      "status": "completed",
+      "authorization_id": "authorization-repair-b-043",
+      "evidence_ids": [
+        "evidence-repair-b-043"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-repair-b-043"
+      ],
+      "started_at": "2026-10-29T00:40:00Z",
+      "completed_at": "2026-10-29T00:55:00Z"
+    },
+    {
+      "task_id": "task-verify-043",
+      "assigned_agent_id": "mini-agent-verification-043",
+      "operation": "verify",
+      "target_id": "ai-component-043",
+      "resource_scope": "component-verification",
+      "access_mode": "read",
+      "depends_on": [
+        "task-repair-a-043",
+        "task-repair-b-043"
+      ],
+      "status": "completed",
+      "authorization_id": "authorization-verification-043",
+      "evidence_ids": [
+        "evidence-verification-043"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-verification-043"
+      ],
+      "started_at": "2026-10-29T01:00:00Z",
+      "completed_at": "2026-10-29T01:10:00Z"
+    }
+  ],
+  "conflicts": [
+    {
+      "conflict_id": "conflict-write-write-043",
+      "task_ids": [
+        "task-repair-a-043",
+        "task-repair-b-043"
+      ],
+      "resource_scope": "component-runtime-configuration",
+      "conflict_type": "write_write",
+      "disposition": "serialized",
+      "detected_at": "2026-10-29T00:15:00Z",
+      "resolution": {
+        "execution_order": [
+          "task-repair-a-043",
+          "task-repair-b-043"
+        ],
+        "reason": "Both repair tasks modify the same runtime configuration. Sequential execution is required to avoid conflicting writes."
+      }
+    }
+  ],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-serialized-repair-043",
+    "coordination_id": "marp-coordination-003",
+    "considered_task_ids": [
+      "task-repair-a-043",
+      "task-repair-b-043",
+      "task-verify-043"
+    ],
+    "verified_task_ids": [
+      "task-repair-a-043",
+      "task-repair-b-043"
+    ],
+    "unresolved_task_ids": [],
+    "conflict_ids": [
+      "conflict-write-write-043"
+    ],
+    "decision": "accepted",
+    "evidence_ids": [
+      "evidence-repair-a-043",
+      "evidence-repair-b-043",
+      "evidence-verification-043"
+    ],
+    "evaluated_at": "2026-10-29T01:15:00Z"
+  },
+  "evaluated_at": "2026-10-29T01:15:00Z",
+  "expected_result": "PASS"
+}
