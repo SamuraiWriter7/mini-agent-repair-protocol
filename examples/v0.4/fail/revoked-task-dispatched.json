@@ -1,0 +1,112 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-revoked-dispatch-054",
+  "target_id": "ai-component-054",
+  "lineage_id": "marp-lineage-revoked-dispatch-054",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-054",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-054",
+    "authorized_scopes": [
+      "component-diagnostics",
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 2,
+    "coordinator_id": "mini-agent-coordinator-054"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-diagnostic-054",
+      "role": "diagnostic",
+      "authorized_operations": [
+        "diagnose"
+      ],
+      "authorized_scopes": [
+        "component-diagnostics"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-diagnostic-054",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-repair-054",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "revoked",
+      "authorization_id": "authorization-repair-054",
+      "authorization_expires_at": "2026-10-29T01:30:00Z",
+      "authorization_revoked_at": "2026-10-29T00:35:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-diagnose-054",
+      "assigned_agent_id": "mini-agent-diagnostic-054",
+      "operation": "diagnose",
+      "target_id": "ai-component-054",
+      "resource_scope": "component-diagnostics",
+      "access_mode": "read",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-diagnostic-054",
+      "evidence_ids": [
+        "evidence-diagnostic-054"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-diagnostic-054"
+      ],
+      "started_at": "2026-10-29T00:20:00Z",
+      "completed_at": "2026-10-29T00:30:00Z"
+    },
+    {
+      "task_id": "task-repair-054",
+      "assigned_agent_id": "mini-agent-repair-054",
+      "operation": "repair",
+      "target_id": "ai-component-054",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [
+        "task-diagnose-054"
+      ],
+      "status": "completed",
+      "authorization_id": "authorization-repair-054",
+      "evidence_ids": [
+        "evidence-repair-after-revocation-054"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-unauthorized-repair-054"
+      ],
+      "started_at": "2026-10-29T00:40:00Z",
+      "completed_at": "2026-10-29T00:50:00Z"
+    }
+  ],
+  "conflicts": [],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-revoked-dispatch-054",
+    "coordination_id": "marp-coordination-revoked-dispatch-054",
+    "considered_task_ids": [
+      "task-diagnose-054",
+      "task-repair-054"
+    ],
+    "verified_task_ids": [],
+    "unresolved_task_ids": [],
+    "conflict_ids": [],
+    "decision": "rejected",
+    "evidence_ids": [
+      "evidence-diagnostic-054",
+      "evidence-repair-after-revocation-054"
+    ],
+    "evaluated_at": "2026-10-29T00:55:00Z"
+  },
+  "evaluated_at": "2026-10-29T00:55:00Z",
+  "expected_result": "FAIL"
+}
