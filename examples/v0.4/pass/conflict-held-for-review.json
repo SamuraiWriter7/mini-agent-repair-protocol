@@ -1,0 +1,123 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-004",
+  "target_id": "ai-component-044",
+  "lineage_id": "marp-lineage-conflict-held-044",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-044",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-044",
+    "authorized_scopes": [
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 2,
+    "coordinator_id": "mini-agent-coordinator-044"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-repair-a-044",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "held",
+      "authorization_id": "authorization-repair-a-044",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-repair-b-044",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "held",
+      "authorization_id": "authorization-repair-b-044",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-repair-a-044",
+      "assigned_agent_id": "mini-agent-repair-a-044",
+      "operation": "repair",
+      "target_id": "ai-component-044",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [],
+      "status": "held",
+      "authorization_id": "authorization-repair-a-044",
+      "evidence_ids": [
+        "evidence-conflict-detection-a-044"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-hold-a-044"
+      ],
+      "held_at": "2026-10-29T00:20:00Z"
+    },
+    {
+      "task_id": "task-repair-b-044",
+      "assigned_agent_id": "mini-agent-repair-b-044",
+      "operation": "repair",
+      "target_id": "ai-component-044",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [],
+      "status": "held",
+      "authorization_id": "authorization-repair-b-044",
+      "evidence_ids": [
+        "evidence-conflict-detection-b-044"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-hold-b-044"
+      ],
+      "held_at": "2026-10-29T00:20:00Z"
+    }
+  ],
+  "conflicts": [
+    {
+      "conflict_id": "conflict-unresolved-write-044",
+      "task_ids": [
+        "task-repair-a-044",
+        "task-repair-b-044"
+      ],
+      "resource_scope": "component-runtime-configuration",
+      "conflict_type": "write_write",
+      "disposition": "blocked",
+      "detected_at": "2026-10-29T00:15:00Z"
+    }
+  ],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-conflict-held-044",
+    "coordination_id": "marp-coordination-004",
+    "considered_task_ids": [
+      "task-repair-a-044",
+      "task-repair-b-044"
+    ],
+    "verified_task_ids": [],
+    "unresolved_task_ids": [
+      "task-repair-a-044",
+      "task-repair-b-044"
+    ],
+    "conflict_ids": [
+      "conflict-unresolved-write-044"
+    ],
+    "decision": "held",
+    "evidence_ids": [
+      "evidence-conflict-detection-a-044",
+      "evidence-conflict-detection-b-044"
+    ],
+    "evaluated_at": "2026-10-29T00:25:00Z"
+  },
+  "evaluated_at": "2026-10-29T00:25:00Z",
+  "expected_result": "PASS"
+}
