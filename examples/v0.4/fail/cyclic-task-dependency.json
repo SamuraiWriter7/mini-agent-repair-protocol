@@ -1,0 +1,101 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-cyclic-047",
+  "target_id": "ai-component-047",
+  "lineage_id": "marp-lineage-cyclic-dependency-047",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-047",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-047",
+    "authorized_scopes": [
+      "component-runtime-configuration",
+      "component-verification"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 2,
+    "coordinator_id": "mini-agent-coordinator-047"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-repair-047",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "active",
+      "authorization_id": "authorization-repair-047",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-verification-047",
+      "role": "verification",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-verification"
+      ],
+      "assignment_status": "active",
+      "authorization_id": "authorization-verification-047",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-repair-047",
+      "assigned_agent_id": "mini-agent-repair-047",
+      "operation": "repair",
+      "target_id": "ai-component-047",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [
+        "task-verify-047"
+      ],
+      "status": "pending",
+      "authorization_id": "authorization-repair-047",
+      "evidence_ids": [],
+      "lineage_event_ids": []
+    },
+    {
+      "task_id": "task-verify-047",
+      "assigned_agent_id": "mini-agent-verification-047",
+      "operation": "verify",
+      "target_id": "ai-component-047",
+      "resource_scope": "component-verification",
+      "access_mode": "read",
+      "depends_on": [
+        "task-repair-047"
+      ],
+      "status": "pending",
+      "authorization_id": "authorization-verification-047",
+      "evidence_ids": [],
+      "lineage_event_ids": []
+    }
+  ],
+  "conflicts": [],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-cyclic-dependency-047",
+    "coordination_id": "marp-coordination-cyclic-047",
+    "considered_task_ids": [
+      "task-repair-047",
+      "task-verify-047"
+    ],
+    "verified_task_ids": [],
+    "unresolved_task_ids": [
+      "task-repair-047",
+      "task-verify-047"
+    ],
+    "conflict_ids": [],
+    "decision": "rejected",
+    "evidence_ids": [],
+    "evaluated_at": "2026-10-29T00:20:00Z"
+  },
+  "evaluated_at": "2026-10-29T00:20:00Z",
+  "expected_result": "FAIL"
+}
