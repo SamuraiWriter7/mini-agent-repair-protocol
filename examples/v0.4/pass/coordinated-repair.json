@@ -1,0 +1,187 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-001",
+  "target_id": "ai-component-041",
+  "lineage_id": "marp-lineage-coordinated-repair-041",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-041",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-041",
+    "authorized_scopes": [
+      "component-diagnostics",
+      "component-network-interface",
+      "component-runtime-configuration",
+      "component-verification"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 2,
+    "coordinator_id": "mini-agent-coordinator-041"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-diagnostic-041",
+      "role": "diagnostic",
+      "authorized_operations": [
+        "diagnose"
+      ],
+      "authorized_scopes": [
+        "component-diagnostics"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-diagnostic-041",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-containment-041",
+      "role": "containment",
+      "authorized_operations": [
+        "contain"
+      ],
+      "authorized_scopes": [
+        "component-network-interface"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-containment-041",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-repair-041",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-repair-041",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-verification-041",
+      "role": "verification",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-verification"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-verification-041",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-diagnose-041",
+      "assigned_agent_id": "mini-agent-diagnostic-041",
+      "operation": "diagnose",
+      "target_id": "ai-component-041",
+      "resource_scope": "component-diagnostics",
+      "access_mode": "read",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-diagnostic-041",
+      "evidence_ids": [
+        "evidence-diagnostic-041"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-diagnostic-041"
+      ],
+      "started_at": "2026-10-29T00:20:00Z",
+      "completed_at": "2026-10-29T00:25:00Z"
+    },
+    {
+      "task_id": "task-contain-041",
+      "assigned_agent_id": "mini-agent-containment-041",
+      "operation": "contain",
+      "target_id": "ai-component-041",
+      "resource_scope": "component-network-interface",
+      "access_mode": "write",
+      "depends_on": [
+        "task-diagnose-041"
+      ],
+      "status": "completed",
+      "authorization_id": "authorization-containment-041",
+      "evidence_ids": [
+        "evidence-containment-041"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-containment-041"
+      ],
+      "started_at": "2026-10-29T00:30:00Z",
+      "completed_at": "2026-10-29T00:35:00Z"
+    },
+    {
+      "task_id": "task-repair-041",
+      "assigned_agent_id": "mini-agent-repair-041",
+      "operation": "repair",
+      "target_id": "ai-component-041",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [
+        "task-contain-041"
+      ],
+      "status": "completed",
+      "authorization_id": "authorization-repair-041",
+      "evidence_ids": [
+        "evidence-repair-041"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-repair-041"
+      ],
+      "started_at": "2026-10-29T00:40:00Z",
+      "completed_at": "2026-10-29T00:50:00Z"
+    },
+    {
+      "task_id": "task-verify-041",
+      "assigned_agent_id": "mini-agent-verification-041",
+      "operation": "verify",
+      "target_id": "ai-component-041",
+      "resource_scope": "component-verification",
+      "access_mode": "read",
+      "depends_on": [
+        "task-repair-041"
+      ],
+      "status": "completed",
+      "authorization_id": "authorization-verification-041",
+      "evidence_ids": [
+        "evidence-verification-041"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-verification-041"
+      ],
+      "started_at": "2026-10-29T00:55:00Z",
+      "completed_at": "2026-10-29T01:00:00Z"
+    }
+  ],
+  "conflicts": [],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-coordinated-repair-041",
+    "coordination_id": "marp-coordination-001",
+    "considered_task_ids": [
+      "task-diagnose-041",
+      "task-contain-041",
+      "task-repair-041",
+      "task-verify-041"
+    ],
+    "verified_task_ids": [
+      "task-repair-041"
+    ],
+    "unresolved_task_ids": [],
+    "conflict_ids": [],
+    "decision": "accepted",
+    "evidence_ids": [
+      "evidence-diagnostic-041",
+      "evidence-containment-041",
+      "evidence-repair-041",
+      "evidence-verification-041"
+    ],
+    "evaluated_at": "2026-10-29T01:05:00Z"
+  },
+  "evaluated_at": "2026-10-29T01:05:00Z",
+  "expected_result": "PASS"
+}
