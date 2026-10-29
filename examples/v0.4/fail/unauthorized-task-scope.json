@@ -1,0 +1,74 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-unauthorized-scope-051",
+  "target_id": "ai-component-051",
+  "lineage_id": "marp-lineage-unauthorized-scope-051",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-051",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-051",
+    "authorized_scopes": [
+      "component-runtime-configuration"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 1,
+    "coordinator_id": "mini-agent-coordinator-051"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-repair-051",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-repair-051",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-unauthorized-repair-051",
+      "assigned_agent_id": "mini-agent-repair-051",
+      "operation": "repair",
+      "target_id": "ai-component-051",
+      "resource_scope": "component-security-policy",
+      "access_mode": "write",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-repair-051",
+      "evidence_ids": [
+        "evidence-unauthorized-repair-051"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-unauthorized-repair-051"
+      ],
+      "started_at": "2026-10-29T00:20:00Z",
+      "completed_at": "2026-10-29T00:30:00Z"
+    }
+  ],
+  "conflicts": [],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-unauthorized-scope-051",
+    "coordination_id": "marp-coordination-unauthorized-scope-051",
+    "considered_task_ids": [
+      "task-unauthorized-repair-051"
+    ],
+    "verified_task_ids": [],
+    "unresolved_task_ids": [],
+    "conflict_ids": [],
+    "decision": "accepted",
+    "evidence_ids": [
+      "evidence-unauthorized-repair-051"
+    ],
+    "evaluated_at": "2026-10-29T00:35:00Z"
+  },
+  "evaluated_at": "2026-10-29T00:35:00Z",
+  "expected_result": "FAIL"
+}
