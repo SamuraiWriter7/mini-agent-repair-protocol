@@ -1,0 +1,149 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-concurrent-write-049",
+  "target_id": "ai-component-049",
+  "lineage_id": "marp-lineage-concurrent-write-049",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-049",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-049",
+    "authorized_scopes": [
+      "component-runtime-configuration",
+      "component-verification"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 2,
+    "coordinator_id": "mini-agent-coordinator-049"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-repair-a-049",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-repair-a-049",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-repair-b-049",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-repair-b-049",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-verification-049",
+      "role": "verification",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-verification"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-verification-049",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-repair-a-049",
+      "assigned_agent_id": "mini-agent-repair-a-049",
+      "operation": "repair",
+      "target_id": "ai-component-049",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-repair-a-049",
+      "evidence_ids": [
+        "evidence-repair-a-049"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-repair-a-049"
+      ],
+      "started_at": "2026-10-29T00:20:00Z",
+      "completed_at": "2026-10-29T00:45:00Z"
+    },
+    {
+      "task_id": "task-repair-b-049",
+      "assigned_agent_id": "mini-agent-repair-b-049",
+      "operation": "repair",
+      "target_id": "ai-component-049",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-repair-b-049",
+      "evidence_ids": [
+        "evidence-repair-b-049"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-repair-b-049"
+      ],
+      "started_at": "2026-10-29T00:30:00Z",
+      "completed_at": "2026-10-29T00:50:00Z"
+    },
+    {
+      "task_id": "task-verify-049",
+      "assigned_agent_id": "mini-agent-verification-049",
+      "operation": "verify",
+      "target_id": "ai-component-049",
+      "resource_scope": "component-verification",
+      "access_mode": "read",
+      "depends_on": [
+        "task-repair-a-049",
+        "task-repair-b-049"
+      ],
+      "status": "completed",
+      "authorization_id": "authorization-verification-049",
+      "evidence_ids": [
+        "evidence-verification-049"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-verification-049"
+      ],
+      "started_at": "2026-10-29T00:55:00Z",
+      "completed_at": "2026-10-29T01:05:00Z"
+    }
+  ],
+  "conflicts": [],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-concurrent-write-049",
+    "coordination_id": "marp-coordination-concurrent-write-049",
+    "considered_task_ids": [
+      "task-repair-a-049",
+      "task-repair-b-049",
+      "task-verify-049"
+    ],
+    "verified_task_ids": [
+      "task-repair-a-049",
+      "task-repair-b-049"
+    ],
+    "unresolved_task_ids": [],
+    "conflict_ids": [],
+    "decision": "accepted",
+    "evidence_ids": [
+      "evidence-repair-a-049",
+      "evidence-repair-b-049",
+      "evidence-verification-049"
+    ],
+    "evaluated_at": "2026-10-29T01:10:00Z"
+  },
+  "evaluated_at": "2026-10-29T01:10:00Z",
+  "expected_result": "FAIL"
+}
