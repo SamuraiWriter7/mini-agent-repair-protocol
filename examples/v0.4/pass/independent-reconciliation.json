@@ -1,0 +1,151 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-005",
+  "target_id": "ai-component-045",
+  "lineage_id": "marp-lineage-independent-reconciliation-045",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-045",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-045",
+    "authorized_scopes": [
+      "component-runtime-configuration",
+      "component-verification",
+      "component-reconciliation"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 2,
+    "coordinator_id": "mini-agent-coordinator-045"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-repair-045",
+      "role": "repair",
+      "authorized_operations": [
+        "repair"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-repair-045",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-verification-045",
+      "role": "verification",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-verification"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-verification-045",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-reconciliation-045",
+      "role": "reconciliation",
+      "authorized_operations": [
+        "reconcile"
+      ],
+      "authorized_scopes": [
+        "component-reconciliation"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-reconciliation-045",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-repair-045",
+      "assigned_agent_id": "mini-agent-repair-045",
+      "operation": "repair",
+      "target_id": "ai-component-045",
+      "resource_scope": "component-runtime-configuration",
+      "access_mode": "write",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-repair-045",
+      "evidence_ids": [
+        "evidence-repair-045"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-repair-045"
+      ],
+      "started_at": "2026-10-29T00:20:00Z",
+      "completed_at": "2026-10-29T00:40:00Z"
+    },
+    {
+      "task_id": "task-verification-045",
+      "assigned_agent_id": "mini-agent-verification-045",
+      "operation": "verify",
+      "target_id": "ai-component-045",
+      "resource_scope": "component-verification",
+      "access_mode": "read",
+      "depends_on": [
+        "task-repair-045"
+      ],
+      "status": "completed",
+      "authorization_id": "authorization-verification-045",
+      "evidence_ids": [
+        "evidence-verification-045"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-verification-045"
+      ],
+      "started_at": "2026-10-29T00:45:00Z",
+      "completed_at": "2026-10-29T00:55:00Z"
+    },
+    {
+      "task_id": "task-reconciliation-045",
+      "assigned_agent_id": "mini-agent-reconciliation-045",
+      "operation": "reconcile",
+      "target_id": "ai-component-045",
+      "resource_scope": "component-reconciliation",
+      "access_mode": "read",
+      "depends_on": [
+        "task-repair-045",
+        "task-verification-045"
+      ],
+      "status": "completed",
+      "authorization_id": "authorization-reconciliation-045",
+      "evidence_ids": [
+        "evidence-reconciliation-045"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-reconciliation-045"
+      ],
+      "started_at": "2026-10-29T01:00:00Z",
+      "completed_at": "2026-10-29T01:05:00Z"
+    }
+  ],
+  "conflicts": [],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-independent-045",
+    "coordination_id": "marp-coordination-005",
+    "considered_task_ids": [
+      "task-repair-045",
+      "task-verification-045",
+      "task-reconciliation-045"
+    ],
+    "verified_task_ids": [
+      "task-repair-045"
+    ],
+    "unresolved_task_ids": [],
+    "conflict_ids": [],
+    "decision": "accepted",
+    "evidence_ids": [
+      "evidence-repair-045",
+      "evidence-verification-045",
+      "evidence-reconciliation-045"
+    ],
+    "evaluated_at": "2026-10-29T01:10:00Z"
+  },
+  "evaluated_at": "2026-10-29T01:10:00Z",
+  "expected_result": "PASS"
+}
