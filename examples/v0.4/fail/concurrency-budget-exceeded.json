@@ -1,0 +1,144 @@
+{
+  "schema_version": "0.4.0",
+  "coordination_id": "marp-coordination-concurrency-exceeded-050",
+  "target_id": "ai-component-050",
+  "lineage_id": "marp-lineage-concurrency-exceeded-050",
+  "policy_id": "marp-coordination-policy-v0.4",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "coordination_authorization_id": "authorization-coordination-050",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-050",
+    "authorized_scopes": [
+      "component-runtime-logs",
+      "component-network-metrics",
+      "component-health-metrics"
+    ],
+    "issued_at": "2026-10-29T00:10:00Z",
+    "expires_at": "2026-10-29T02:00:00Z",
+    "max_concurrency": 2,
+    "coordinator_id": "mini-agent-coordinator-050"
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-log-diagnostic-050",
+      "role": "diagnostic",
+      "authorized_operations": [
+        "diagnose"
+      ],
+      "authorized_scopes": [
+        "component-runtime-logs"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-log-diagnostic-050",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-network-diagnostic-050",
+      "role": "diagnostic",
+      "authorized_operations": [
+        "diagnose"
+      ],
+      "authorized_scopes": [
+        "component-network-metrics"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-network-diagnostic-050",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-health-diagnostic-050",
+      "role": "diagnostic",
+      "authorized_operations": [
+        "diagnose"
+      ],
+      "authorized_scopes": [
+        "component-health-metrics"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-health-diagnostic-050",
+      "authorization_expires_at": "2026-10-29T01:30:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "task-log-diagnostics-050",
+      "assigned_agent_id": "mini-agent-log-diagnostic-050",
+      "operation": "diagnose",
+      "target_id": "ai-component-050",
+      "resource_scope": "component-runtime-logs",
+      "access_mode": "read",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-log-diagnostic-050",
+      "evidence_ids": [
+        "evidence-log-diagnostics-050"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-log-diagnostics-050"
+      ],
+      "started_at": "2026-10-29T00:20:00Z",
+      "completed_at": "2026-10-29T00:40:00Z"
+    },
+    {
+      "task_id": "task-network-diagnostics-050",
+      "assigned_agent_id": "mini-agent-network-diagnostic-050",
+      "operation": "diagnose",
+      "target_id": "ai-component-050",
+      "resource_scope": "component-network-metrics",
+      "access_mode": "read",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-network-diagnostic-050",
+      "evidence_ids": [
+        "evidence-network-diagnostics-050"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-network-diagnostics-050"
+      ],
+      "started_at": "2026-10-29T00:25:00Z",
+      "completed_at": "2026-10-29T00:45:00Z"
+    },
+    {
+      "task_id": "task-health-diagnostics-050",
+      "assigned_agent_id": "mini-agent-health-diagnostic-050",
+      "operation": "diagnose",
+      "target_id": "ai-component-050",
+      "resource_scope": "component-health-metrics",
+      "access_mode": "read",
+      "depends_on": [],
+      "status": "completed",
+      "authorization_id": "authorization-health-diagnostic-050",
+      "evidence_ids": [
+        "evidence-health-diagnostics-050"
+      ],
+      "lineage_event_ids": [
+        "lineage-event-health-diagnostics-050"
+      ],
+      "started_at": "2026-10-29T00:30:00Z",
+      "completed_at": "2026-10-29T00:50:00Z"
+    }
+  ],
+  "conflicts": [],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-concurrency-exceeded-050",
+    "coordination_id": "marp-coordination-concurrency-exceeded-050",
+    "considered_task_ids": [
+      "task-log-diagnostics-050",
+      "task-network-diagnostics-050",
+      "task-health-diagnostics-050"
+    ],
+    "verified_task_ids": [],
+    "unresolved_task_ids": [],
+    "conflict_ids": [],
+    "decision": "accepted",
+    "evidence_ids": [
+      "evidence-log-diagnostics-050",
+      "evidence-network-diagnostics-050",
+      "evidence-health-diagnostics-050"
+    ],
+    "evaluated_at": "2026-10-29T00:55:00Z"
+  },
+  "evaluated_at": "2026-10-29T00:55:00Z",
+  "expected_result": "FAIL"
+}
