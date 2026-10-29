@@ -1,21 +1,33 @@
 #!/usr/bin/env python3
 """
-MARP v0.1-v0.3 integrated fixture validator.
+Mini-Agent Repair Protocol (MARP)
+Integrated Fixture Validator v0.1-v0.4
 
 v0.1:
-    Repair record schema and semantic validation.
+    Repair records, scope, authority, and verification.
 
 v0.2:
-    Lifecycle record schema and semantic validation.
+    Repair lifecycle, holds, containment, revocation,
+    and recovery transitions.
 
 v0.3:
-    Repair lineage, causal ordering, evidence bindings,
-    authorization history, hold tracking, source records,
-    and recovery gate validation.
+    Repair lineage, causal history, evidence bindings,
+    source records, and independent recovery gates.
 
-The v0.3 sources are synthetic test fixtures.
-Passing these checks does not prove real-world evidence
-authenticity, trusted authorization, or runtime safety.
+v0.4:
+    Multi-agent coordination, dependencies, concurrency,
+    conflict control, authorization boundaries,
+    independent verification, and reconciliation.
+
+Expected fixture counts:
+    v0.1:  4 PASS + 6 FAIL = 10
+    v0.2:  6 PASS + 6 FAIL = 12
+    v0.3:  6 PASS + 8 FAIL = 14
+    v0.4:  6 PASS + 8 FAIL = 14
+    Total: 50
+
+Passing synthetic fixtures does not establish real-world
+authorization authenticity or runtime safety.
 """
 
 from __future__ import annotations
@@ -27,6 +39,7 @@ from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -43,6 +56,11 @@ VERSIONS = {
     ),
     "v0.3": (
         "schemas/repair-lineage-v0.3.schema.json",
+        6,
+        8,
+    ),
+    "v0.4": (
+        "schemas/repair-coordination-v0.4.schema.json",
         6,
         8,
     ),
@@ -67,7 +85,30 @@ EXPECTED_V03_ERRORS = {
         "REVOKED_AUTHORIZATION_REUSE",
 }
 
-ACTIVE = {"authorized", "executed", "verified"}
+EXPECTED_V04_ERRORS = {
+    "cyclic-task-dependency.json":
+        "CYCLIC_TASK_DEPENDENCY",
+    "unknown-task-dependency.json":
+        "UNKNOWN_TASK_DEPENDENCY",
+    "concurrent-write-conflict.json":
+        "CONCURRENT_WRITE_CONFLICT",
+    "concurrency-budget-exceeded.json":
+        "CONCURRENCY_BUDGET_EXCEEDED",
+    "unauthorized-task-scope.json":
+        "UNAUTHORIZED_TASK_SCOPE",
+    "self-verification-accepted.json":
+        "SELF_VERIFICATION_ACCEPTED",
+    "unresolved-conflict-accepted.json":
+        "UNRESOLVED_CONFLICT_ACCEPTED",
+    "revoked-task-dispatched.json":
+        "REVOKED_TASK_DISPATCHED",
+}
+
+ACTIVE = {
+    "authorized",
+    "executed",
+    "verified",
+}
 
 ROLES = {
     "diagnose": "diagnostic",
@@ -173,8 +214,12 @@ GATE_CONDITIONS = {
 }
 
 
+# ============================================================
+# Common utilities
+# ============================================================
+
 class SemanticError(ValueError):
-    pass
+    """Raised when a semantic invariant is violated."""
 
 
 def require(
@@ -184,8 +229,10 @@ def require(
 ) -> None:
     if not condition:
         message = code
+
         if detail:
             message += f": {detail}"
+
         raise SemanticError(message)
 
 
@@ -205,10 +252,12 @@ def instant(value: str) -> datetime:
     result = datetime.fromisoformat(
         value.replace("Z", "+00:00")
     )
+
     require(
         result.utcoffset() is not None,
         "TIMEZONE_REQUIRED",
     )
+
     return result
 
 
@@ -216,6 +265,7 @@ def make_validator(
     schema_path: Path,
 ) -> Draft202012Validator:
     schema = read_object(schema_path)
+
     Draft202012Validator.check_schema(schema)
 
     return Draft202012Validator(
@@ -245,6 +295,7 @@ def check_schema(
 
     if errors:
         error = errors[0]
+
         location = "/".join(
             map(str, error.absolute_path)
         ) or "<root>"
@@ -265,6 +316,7 @@ def temporal_bounds(
 
     if issued:
         issue_time = instant(issued)
+
         require(
             event_time >= issue_time,
             "AUTHORIZATION_NOT_YET_VALID",
@@ -302,7 +354,8 @@ def temporal_bounds(
 
 
 # ============================================================
-# v0.1 semantic validation
+# MARP v0.1
+# Repair record validation
 # ============================================================
 
 def semantic_v01(record: dict[str, Any]) -> None:
@@ -321,20 +374,24 @@ def semantic_v01(record: dict[str, Any]) -> None:
     )
 
     require(
-        operation["state_changing"] is (
-            kind != "diagnose"
-        ),
+        operation["state_changing"]
+        is (kind != "diagnose"),
         "INVALID_STATE_CHANGE_FLAG",
     )
 
     require(
-        operation["scope"] in target["authorized_scope"],
+        operation["scope"]
+        in target["authorized_scope"],
         "OUT_OF_SCOPE_INTERVENTION",
     )
 
-    if operation["state_changing"] and status in ACTIVE:
+    if (
+        operation["state_changing"]
+        and status in ACTIVE
+    ):
         require(
-            authority["authorization_status"] == "granted",
+            authority["authorization_status"]
+            == "granted",
             "AUTHORIZATION_NOT_GRANTED",
         )
 
@@ -351,9 +408,8 @@ def semantic_v01(record: dict[str, Any]) -> None:
         )
 
         require(
-            agent["mini_agent_id"] != authority[
-                "controller_id"
-            ],
+            agent["mini_agent_id"]
+            != authority["controller_id"],
             "SELF_AUTHORIZATION",
         )
 
@@ -374,7 +430,8 @@ def semantic_v01(record: dict[str, Any]) -> None:
 
     if status == "verified":
         require(
-            verification["verification_status"] == "passed",
+            verification["verification_status"]
+            == "passed",
             "VERIFICATION_NOT_PASSED",
         )
 
@@ -393,19 +450,23 @@ def semantic_v01(record: dict[str, Any]) -> None:
             bool(ids),
             "MISSING_VERIFICATION_EVIDENCE",
         )
+
     else:
         require(
-            verification["verification_status"] != "passed",
+            verification["verification_status"]
+            != "passed",
             "UNCONFIRMED_VERIFICATION_STATUS",
         )
 
 
 # ============================================================
-# v0.2 semantic validation
+# MARP v0.2
+# Lifecycle validation
 # ============================================================
 
 def semantic_v02(record: dict[str, Any]) -> None:
     event = record["event_type"]
+
     transition = (
         record["previous_state"],
         record["next_state"],
@@ -434,7 +495,8 @@ def semantic_v02(record: dict[str, Any]) -> None:
 
     if event in AUTHORIZED_EVENTS:
         require(
-            authority["authorization_status"] == "granted",
+            authority["authorization_status"]
+            == "granted",
             "AUTHORIZATION_NOT_GRANTED",
         )
 
@@ -444,7 +506,8 @@ def semantic_v02(record: dict[str, Any]) -> None:
         )
 
         require(
-            PERMISSIONS[event] in authority.get(
+            PERMISSIONS[event]
+            in authority.get(
                 "authorized_operations", []
             ),
             "UNAUTHORIZED_OPERATION_TYPE",
@@ -460,13 +523,15 @@ def semantic_v02(record: dict[str, Any]) -> None:
         temporal_bounds(authority, now)
 
         require(
-            record["actor_id"] != authority["controller_id"],
+            record["actor_id"]
+            != authority["controller_id"],
             "SELF_AUTHORIZATION",
         )
 
         if containment:
             require(
-                containment["scope"] in authority.get(
+                containment["scope"]
+                in authority.get(
                     "authorized_scopes", []
                 ),
                 "OUT_OF_SCOPE_INTERVENTION",
@@ -475,7 +540,8 @@ def semantic_v02(record: dict[str, Any]) -> None:
     if containment:
         if "applied_at" in containment:
             require(
-                instant(containment["applied_at"]) <= now,
+                instant(containment["applied_at"])
+                <= now,
                 "CONTAINMENT_APPLIED_IN_FUTURE",
             )
 
@@ -524,7 +590,8 @@ def semantic_v02(record: dict[str, Any]) -> None:
         )
 
         require(
-            authority["authorization_status"] == expected,
+            authority["authorization_status"]
+            == expected,
             "AUTHORIZATION_STATUS_EVENT_MISMATCH",
         )
 
@@ -547,7 +614,8 @@ def semantic_v02(record: dict[str, Any]) -> None:
             )
 
             require(
-                instant(authority["revoked_at"]) == now,
+                instant(authority["revoked_at"])
+                == now,
                 "REVOCATION_TIMESTAMP_MISMATCH",
             )
 
@@ -559,7 +627,8 @@ def semantic_v02(record: dict[str, Any]) -> None:
 
     if event == "verification_passed":
         require(
-            verification["verification_status"] == "passed",
+            verification["verification_status"]
+            == "passed",
             "VERIFICATION_NOT_PASSED",
         )
 
@@ -583,13 +652,15 @@ def semantic_v02(record: dict[str, Any]) -> None:
     if event == "release_approved":
         require(
             containment is not None
-            and containment["status"] == "release_pending",
+            and containment["status"]
+            == "release_pending",
             "RELEASE_NOT_PENDING",
         )
 
     if event == "containment_released":
         require(
-            verification["verification_status"] == "passed",
+            verification["verification_status"]
+            == "passed",
             "RELEASE_WITHOUT_VERIFICATION",
         )
 
@@ -610,18 +681,21 @@ def semantic_v02(record: dict[str, Any]) -> None:
         )
 
         require(
-            instant(containment["released_at"]) == now,
+            instant(containment["released_at"])
+            == now,
             "RELEASE_TIMESTAMP_MISMATCH",
         )
 
         require(
-            hold is None or hold["status"] != "active",
+            hold is None
+            or hold["status"] != "active",
             "RELEASE_WHILE_HELD",
         )
 
 
 # ============================================================
-# v0.3 lineage validation
+# MARP v0.3
+# Lineage and causal verification
 # ============================================================
 
 def source_path(reference: str) -> Path:
@@ -649,7 +723,10 @@ def source_path(reference: str) -> Path:
 def check_lineage_graph(
     records: list[dict[str, Any]],
 ) -> None:
-    ids = [item["event_id"] for item in records]
+    ids = [
+        item["event_id"]
+        for item in records
+    ]
 
     require(
         len(ids) == len(set(ids)),
@@ -668,10 +745,10 @@ def check_lineage_graph(
             require(
                 predecessor in by_id,
                 "MISSING_PREDECESSOR",
-                f"{item['event_id']} -> {predecessor}",
+                f"{item['event_id']} -> "
+                f"{predecessor}",
             )
 
-    # Cycle detection precedes linear-order checks.
     visited: set[str] = set()
     active: set[str] = set()
 
@@ -705,7 +782,8 @@ def check_lineage_graph(
     )
 
     for previous, current in zip(
-        records, records[1:]
+        records,
+        records[1:],
     ):
         require(
             current["previous_event_id"]
@@ -720,7 +798,9 @@ def check_v03_source(
     record: dict[str, Any],
     schemas: dict[str, Draft202012Validator],
 ) -> dict[str, Any]:
-    path = source_path(record["record_reference"])
+    path = source_path(
+        record["record_reference"]
+    )
 
     require(
         path.is_file(),
@@ -729,17 +809,22 @@ def check_v03_source(
     )
 
     source = read_object(path)
-
     version = record["source_version"]
 
     if version == "0.2.0":
-        check_schema(source, schemas["v0.2"])
+        check_schema(
+            source,
+            schemas["v0.2"],
+        )
 
     elif (
         version == "0.3.0"
         and record["event_type"] == "hold_resolved"
     ):
-        check_schema(source, schemas["hold"])
+        check_schema(
+            source,
+            schemas["hold"],
+        )
 
     else:
         raise SemanticError(
@@ -775,6 +860,7 @@ def check_v03_source(
                 == bundle["containment_id"],
                 "SOURCE_CONTAINMENT_MISMATCH",
             )
+
     else:
         require(
             source["containment_id"]
@@ -803,8 +889,8 @@ def check_evidence(
             evidence_id not in seen,
             "DUPLICATE_EVIDENCE_ID",
         )
-        seen.add(evidence_id)
 
+        seen.add(evidence_id)
         event_id = evidence["event_id"]
 
         require(
@@ -843,7 +929,8 @@ def check_evidence(
         ids = {
             item["evidence_id"]
             for item in bundle["evidence_bindings"]
-            if item["event_id"] == record["event_id"]
+            if item["event_id"]
+            == record["event_id"]
         }
 
         require(
@@ -855,36 +942,40 @@ def check_evidence(
     gate = bundle["recovery_gate"]
 
     require(
-        set(gate["evidence_references"]).issubset(seen),
+        set(gate["evidence_references"])
+        .issubset(seen),
         "INVALID_GATE_EVIDENCE_REFERENCE",
     )
 
     for record in bundle["records"]:
-        if record["event_type"] == "verification_passed":
-            source = sources[record["event_id"]]
+        if record["event_type"] != "verification_passed":
+            continue
 
-            verification_ids = set(
-                source["verification"].get(
-                    "verification_evidence_ids", []
-                )
+        source = sources[record["event_id"]]
+
+        verification_ids = set(
+            source["verification"].get(
+                "verification_evidence_ids", []
             )
+        )
 
-            bound_ids = {
-                item["evidence_id"]
-                for item in bundle["evidence_bindings"]
-                if (
-                    item["event_id"] == record["event_id"]
-                    and item["evidence_type"]
-                    == "verification"
-                )
-            }
-
-            require(
-                bool(bound_ids)
-                and verification_ids == bound_ids,
-                "INVALID_VERIFICATION_EVIDENCE",
-                record["event_id"],
+        bound_ids = {
+            item["evidence_id"]
+            for item in bundle["evidence_bindings"]
+            if (
+                item["event_id"]
+                == record["event_id"]
+                and item["evidence_type"]
+                == "verification"
             )
+        }
+
+        require(
+            bool(bound_ids)
+            and verification_ids == bound_ids,
+            "INVALID_VERIFICATION_EVIDENCE",
+            record["event_id"],
+        )
 
 
 def check_authorizations(
@@ -1033,8 +1124,6 @@ def check_causality(
                 "INVALID_EVENT_ORDER",
             )
 
-        # Prefer specific safety failures over generic
-        # state-continuity errors.
         if event == "verification_passed":
             require(
                 completed,
@@ -1099,26 +1188,35 @@ def check_causality(
                 for item in records
                 if (
                     item["event_type"]
-                    in ("repair_started", "repair_completed")
-                    and instant(item["timestamp"]) < when
+                    in (
+                        "repair_started",
+                        "repair_completed",
+                    )
+                    and instant(item["timestamp"])
+                    < when
                 )
             }
 
             require(
                 record["repair_agent_id"]
                 in repairers
-                and record["actor_id"] not in repairers,
+                and record["actor_id"]
+                not in repairers,
                 "INDEPENDENT_VERIFIER_MISMATCH",
             )
 
         elif event == "operation_held":
-            active_holds.add(record["hold_id"])
+            active_holds.add(
+                record["hold_id"]
+            )
 
         elif event in (
             "authorization_revoked",
             "authorization_expired",
         ):
-            active_holds.add(record["hold_id"])
+            active_holds.add(
+                record["hold_id"]
+            )
 
         elif event == "hold_resolved":
             hold_id = record["hold_id"]
@@ -1137,6 +1235,7 @@ def check_causality(
                 verified,
                 "RELEASE_APPROVAL_WITHOUT_VERIFICATION",
             )
+
             approval = True
 
         elif event == "containment_released":
@@ -1168,7 +1267,8 @@ def check_recovery_gate(
     )
 
     cutoff = next(
-        record for record in records
+        record
+        for record in records
         if record["event_id"]
         == gate["evaluated_event_id"]
     )
@@ -1190,8 +1290,13 @@ def check_recovery_gate(
         "GATE_CUTOFF_NOT_FINAL",
     )
 
-    satisfied = set(gate["satisfied_conditions"])
-    blocking = set(gate["blocking_conditions"])
+    satisfied = set(
+        gate["satisfied_conditions"]
+    )
+
+    blocking = set(
+        gate["blocking_conditions"]
+    )
 
     require(
         satisfied.isdisjoint(blocking),
@@ -1217,6 +1322,7 @@ def check_recovery_gate(
 
     if active_holds:
         expected = "denied"
+
         require(
             "no_active_hold" in blocking,
             "GATE_HOLD_MISMATCH",
@@ -1227,6 +1333,7 @@ def check_recovery_gate(
             approval and verification and repair,
             "INVALID_RELEASE_CHAIN",
         )
+
         expected = "allowed"
 
     else:
@@ -1253,7 +1360,8 @@ def check_recovery_gate(
     if expected == "indeterminate":
         missing = {
             "repair_completed": repair,
-            "independent_verification": verification,
+            "independent_verification":
+                verification,
             "release_approved": approval,
             "release_authorized": approval,
         }
@@ -1275,16 +1383,14 @@ def semantic_v03(
 
     check_lineage_graph(records)
 
-    # Check cross-target mixing before resolving sources.
     for record in records:
         require(
-            record["target_id"] == bundle["target_id"],
+            record["target_id"]
+            == bundle["target_id"],
             "CROSS_TARGET_LINEAGE",
             record["event_id"],
         )
 
-    # Check known invalid causality patterns early,
-    # without treating a broken fixture as a valid source.
     events_seen: set[str] = set()
     active_holds: set[str] = set()
     revoked: set[str] = set()
@@ -1324,30 +1430,809 @@ def semantic_v03(
             active_holds.add(record["hold_id"])
 
         elif event == "hold_resolved":
-            active_holds.discard(record["hold_id"])
+            active_holds.discard(
+                record["hold_id"]
+            )
 
         if event == "authorization_revoked":
-            revoked.add(record["authorization_id"])
+            revoked.add(
+                record["authorization_id"]
+            )
 
         events_seen.add(event)
 
     sources = {}
 
     for record in records:
-        sources[record["event_id"]] = check_v03_source(
-            bundle,
-            record,
-            schemas,
+        sources[record["event_id"]] = (
+            check_v03_source(
+                bundle,
+                record,
+                schemas,
+            )
         )
 
     check_evidence(bundle, sources)
     check_authorizations(bundle)
 
-    active_holds, _ = check_causality(bundle)
+    active_holds, _ = check_causality(
+        bundle
+    )
 
     check_recovery_gate(
         bundle,
         active_holds,
+    )
+
+
+# ============================================================
+# MARP v0.4
+# Distributed repair coordination
+# ============================================================
+
+def check_unique_v04(
+    values: list[str],
+    error_code: str,
+) -> None:
+    require(
+        len(values) == len(set(values)),
+        error_code,
+    )
+
+
+def task_interval_v04(
+    task: dict[str, Any],
+    evaluated_at: str,
+) -> tuple[datetime, datetime]:
+    start = instant(task["started_at"])
+
+    if task["status"] == "completed":
+        end = instant(task["completed_at"])
+    else:
+        end = instant(evaluated_at)
+
+    require(
+        start < end,
+        "INVALID_TASK_TIME_RANGE",
+        task["task_id"],
+    )
+
+    return start, end
+
+
+def intervals_overlap_v04(
+    left: dict[str, Any],
+    right: dict[str, Any],
+    evaluated_at: str,
+) -> bool:
+    left_start, left_end = task_interval_v04(
+        left,
+        evaluated_at,
+    )
+
+    right_start, right_end = task_interval_v04(
+        right,
+        evaluated_at,
+    )
+
+    return (
+        left_start < right_end
+        and right_start < left_end
+    )
+
+
+def check_dependencies_v04(
+    tasks: list[dict[str, Any]],
+    by_task: dict[str, dict[str, Any]],
+) -> None:
+    # Unknown references are checked before cycles.
+    for task in tasks:
+        for dependency in task["depends_on"]:
+            require(
+                dependency in by_task,
+                "UNKNOWN_TASK_DEPENDENCY",
+                f"{task['task_id']} -> "
+                f"{dependency}",
+            )
+
+    visited: set[str] = set()
+    active: set[str] = set()
+
+    def visit(task_id: str) -> None:
+        if task_id in active:
+            raise SemanticError(
+                "CYCLIC_TASK_DEPENDENCY: "
+                + task_id
+            )
+
+        if task_id in visited:
+            return
+
+        active.add(task_id)
+
+        for predecessor in by_task[
+            task_id
+        ]["depends_on"]:
+            visit(predecessor)
+
+        active.remove(task_id)
+        visited.add(task_id)
+
+    for task_id in by_task:
+        visit(task_id)
+
+    for task in tasks:
+        if task["status"] not in {
+            "running",
+            "completed",
+        }:
+            continue
+
+        require(
+            "started_at" in task,
+            "MISSING_EXECUTION_START",
+            task["task_id"],
+        )
+
+        start = instant(
+            task["started_at"]
+        )
+
+        for dependency in task["depends_on"]:
+            predecessor = by_task[dependency]
+
+            require(
+                predecessor["status"]
+                == "completed",
+                "DEPENDENCY_NOT_COMPLETED",
+                dependency,
+            )
+
+            require(
+                "completed_at" in predecessor,
+                "DEPENDENCY_COMPLETION_TIME_MISSING",
+                dependency,
+            )
+
+            require(
+                instant(predecessor["completed_at"])
+                <= start,
+                "DEPENDENCY_ORDER_VIOLATION",
+                task["task_id"],
+            )
+
+
+def check_task_authority_v04(
+    bundle: dict[str, Any],
+    by_agent: dict[str, dict[str, Any]],
+) -> None:
+    authority = bundle["authority"]
+    evaluated = instant(
+        bundle["evaluated_at"]
+    )
+
+    require(
+        authority["authorized_target_id"]
+        == bundle["target_id"],
+        "AUTHORITY_TARGET_MISMATCH",
+    )
+
+    require(
+        authority["authorization_status"]
+        == "granted",
+        "COORDINATION_AUTHORIZATION_NOT_GRANTED",
+    )
+
+    issued = instant(
+        authority["issued_at"]
+    )
+
+    require(
+        evaluated >= issued,
+        "COORDINATION_NOT_YET_AUTHORIZED",
+    )
+
+    if authority.get("expires_at"):
+        require(
+            evaluated
+            < instant(authority["expires_at"]),
+            "COORDINATION_AUTHORIZATION_EXPIRED",
+        )
+
+    if authority.get("revoked_at"):
+        require(
+            evaluated
+            < instant(authority["revoked_at"]),
+            "COORDINATION_AUTHORIZATION_REVOKED",
+        )
+
+    controller_scopes = set(
+        authority["authorized_scopes"]
+    )
+
+    for task in bundle["tasks"]:
+        task_id = task["task_id"]
+        agent_id = task["assigned_agent_id"]
+
+        require(
+            agent_id in by_agent,
+            "UNASSIGNED_TASK",
+            task_id,
+        )
+
+        agent = by_agent[agent_id]
+
+        require(
+            task["target_id"]
+            == bundle["target_id"],
+            "TASK_TARGET_MISMATCH",
+            task_id,
+        )
+
+        require(
+            task["resource_scope"]
+            in controller_scopes
+            and task["resource_scope"]
+            in agent["authorized_scopes"],
+            "UNAUTHORIZED_TASK_SCOPE",
+            task_id,
+        )
+
+        require(
+            task["authorization_id"]
+            == agent.get("authorization_id"),
+            "TASK_AUTHORIZATION_MISMATCH",
+            task_id,
+        )
+
+        require(
+            task["operation"]
+            in agent["authorized_operations"],
+            "UNAUTHORIZED_TASK_OPERATION",
+            task_id,
+        )
+
+        if task["status"] not in {
+            "running",
+            "completed",
+        }:
+            continue
+
+        require(
+            "started_at" in task,
+            "MISSING_EXECUTION_START",
+            task_id,
+        )
+
+        start, end = task_interval_v04(
+            task,
+            bundle["evaluated_at"],
+        )
+
+        require(
+            start >= issued,
+            "TASK_BEFORE_COORDINATION_AUTHORIZATION",
+            task_id,
+        )
+
+        if authority.get("expires_at"):
+            require(
+                end <= instant(
+                    authority["expires_at"]
+                ),
+                "TASK_OUTSIDE_COORDINATION_AUTHORIZATION",
+                task_id,
+            )
+
+        expiry = agent.get(
+            "authorization_expires_at"
+        )
+
+        if expiry:
+            require(
+                end <= instant(expiry),
+                "TASK_AUTHORIZATION_EXPIRED",
+                task_id,
+            )
+
+        revoked = agent.get(
+            "authorization_revoked_at"
+        )
+
+        if revoked:
+            revocation_time = instant(
+                revoked
+            )
+
+            require(
+                end <= revocation_time,
+                "REVOKED_TASK_DISPATCHED",
+                task_id,
+            )
+
+        require(
+            agent["assignment_status"]
+            not in {"held", "revoked"}
+            or (
+                agent["assignment_status"]
+                == "revoked"
+                and revoked is not None
+                and end <= instant(revoked)
+            ),
+            "INVALID_ACTIVE_ASSIGNMENT",
+            task_id,
+        )
+
+
+def check_concurrency_v04(
+    bundle: dict[str, Any],
+) -> None:
+    events: list[
+        tuple[datetime, int]
+    ] = []
+
+    for task in bundle["tasks"]:
+        if task["status"] not in {
+            "running",
+            "completed",
+        }:
+            continue
+
+        start, end = task_interval_v04(
+            task,
+            bundle["evaluated_at"],
+        )
+
+        events.append((start, 1))
+        events.append((end, -1))
+
+    # At identical times, finish before start.
+    events.sort(
+        key=lambda item: (
+            item[0],
+            item[1],
+        )
+    )
+
+    running = 0
+    maximum = 0
+
+    for _, change in events:
+        running += change
+        maximum = max(maximum, running)
+
+    authorized_max = bundle[
+        "authority"
+    ]["max_concurrency"]
+
+    require(
+        maximum <= authorized_max,
+        "CONCURRENCY_BUDGET_EXCEEDED",
+        f"observed={maximum}, "
+        f"authorized={authorized_max}",
+    )
+
+
+def check_conflicts_v04(
+    bundle: dict[str, Any],
+    by_task: dict[str, dict[str, Any]],
+) -> None:
+    conflicts = bundle["conflicts"]
+
+    check_unique_v04(
+        [
+            conflict["conflict_id"]
+            for conflict in conflicts
+        ],
+        "DUPLICATE_CONFLICT_ID",
+    )
+
+    by_pair: dict[
+        frozenset[str],
+        dict[str, Any],
+    ] = {}
+
+    for conflict in conflicts:
+        first, second = conflict["task_ids"]
+
+        require(
+            first in by_task
+            and second in by_task,
+            "UNKNOWN_CONFLICT_TASK",
+            conflict["conflict_id"],
+        )
+
+        pair = frozenset(
+            (first, second)
+        )
+
+        require(
+            pair not in by_pair,
+            "DUPLICATE_CONFLICT_PAIR",
+            conflict["conflict_id"],
+        )
+
+        by_pair[pair] = conflict
+
+        require(
+            by_task[first]["resource_scope"]
+            == conflict["resource_scope"]
+            == by_task[second]["resource_scope"],
+            "CONFLICT_SCOPE_MISMATCH",
+            conflict["conflict_id"],
+        )
+
+        disposition = conflict[
+            "disposition"
+        ]
+
+        if disposition == "blocked":
+            require(
+                all(
+                    by_task[task_id]["status"]
+                    not in {
+                        "running",
+                        "completed",
+                    }
+                    for task_id
+                    in conflict["task_ids"]
+                ),
+                "BLOCKED_CONFLICT_EXECUTED",
+                conflict["conflict_id"],
+            )
+
+        elif disposition == "serialized":
+            order = conflict["resolution"][
+                "execution_order"
+            ]
+
+            require(
+                set(order)
+                == set(conflict["task_ids"]),
+                "INVALID_SERIALIZATION_ORDER",
+                conflict["conflict_id"],
+            )
+
+            preceding = by_task[
+                order[0]
+            ]
+
+            following = by_task[
+                order[1]
+            ]
+
+            require(
+                preceding["status"]
+                == "completed"
+                and following["status"]
+                == "completed",
+                "SERIALIZATION_INCOMPLETE",
+                conflict["conflict_id"],
+            )
+
+            require(
+                instant(preceding["completed_at"])
+                <= instant(
+                    following["started_at"]
+                ),
+                "SERIALIZATION_ORDER_VIOLATION",
+                conflict["conflict_id"],
+            )
+
+            require(
+                order[0]
+                in following["depends_on"],
+                "SERIALIZATION_DEPENDENCY_MISSING",
+                conflict["conflict_id"],
+            )
+
+        elif disposition == "externally_resolved":
+            resolution = conflict["resolution"]
+
+            require(
+                resolution["resolver_id"]
+                == bundle["authority"][
+                    "controller_id"
+                ],
+                "CONFLICT_RESOLVER_NOT_EXTERNAL",
+                conflict["conflict_id"],
+            )
+
+    executed_tasks = [
+        task
+        for task in bundle["tasks"]
+        if task["status"] in {
+            "running",
+            "completed",
+        }
+    ]
+
+    for index, left in enumerate(
+        executed_tasks
+    ):
+        for right in executed_tasks[index + 1:]:
+            if (
+                left["resource_scope"]
+                != right["resource_scope"]
+            ):
+                continue
+
+            if not (
+                left["access_mode"]
+                in {"write", "exclusive"}
+                or right["access_mode"]
+                in {"write", "exclusive"}
+            ):
+                continue
+
+            if not intervals_overlap_v04(
+                left,
+                right,
+                bundle["evaluated_at"],
+            ):
+                continue
+
+            pair = frozenset((
+                left["task_id"],
+                right["task_id"],
+            ))
+
+            conflict = by_pair.get(pair)
+
+            # An externally resolved conflict must
+            # have a separate trusted authority.
+            require(
+                conflict is not None
+                and conflict["disposition"]
+                == "externally_resolved"
+                and left["access_mode"]
+                != "exclusive"
+                and right["access_mode"]
+                != "exclusive",
+                "CONCURRENT_WRITE_CONFLICT",
+                f"{left['task_id']} / "
+                f"{right['task_id']}",
+            )
+
+
+def check_verification_v04(
+    bundle: dict[str, Any],
+    by_task: dict[str, dict[str, Any]],
+) -> None:
+    repairs = {
+        task["task_id"]: task
+        for task in bundle["tasks"]
+        if task["operation"] == "repair"
+    }
+
+    verifications = [
+        task
+        for task in bundle["tasks"]
+        if (
+            task["operation"] == "verify"
+            and task["status"] == "completed"
+        )
+    ]
+
+    verified = set(
+        bundle["reconciliation"][
+            "verified_task_ids"
+        ]
+    )
+
+    for repair_id in verified:
+        require(
+            repair_id in repairs,
+            "INVALID_VERIFIED_TASK_REFERENCE",
+            repair_id,
+        )
+
+        repair = repairs[repair_id]
+
+        matching = [
+            task
+            for task in verifications
+            if repair_id in task["depends_on"]
+        ]
+
+        require(
+            bool(matching),
+            "INDEPENDENT_VERIFICATION_MISSING",
+            repair_id,
+        )
+
+        for verification in matching:
+            require(
+                verification["assigned_agent_id"]
+                != repair["assigned_agent_id"],
+                "SELF_VERIFICATION_ACCEPTED",
+                repair_id,
+            )
+
+    if (
+        bundle["reconciliation"]["decision"]
+        == "accepted"
+    ):
+        for repair_id, repair in repairs.items():
+            if repair["status"] == "completed":
+                require(
+                    repair_id in verified,
+                    "REPAIR_NOT_INDEPENDENTLY_VERIFIED",
+                    repair_id,
+                )
+
+
+def check_reconciliation_v04(
+    bundle: dict[str, Any],
+    by_task: dict[str, dict[str, Any]],
+) -> None:
+    reconciliation = bundle[
+        "reconciliation"
+    ]
+
+    require(
+        reconciliation["coordination_id"]
+        == bundle["coordination_id"],
+        "RECONCILIATION_COORDINATION_MISMATCH",
+    )
+
+    require(
+        instant(reconciliation["evaluated_at"])
+        == instant(bundle["evaluated_at"]),
+        "RECONCILIATION_TIME_MISMATCH",
+    )
+
+    task_ids = set(by_task)
+
+    require(
+        set(
+            reconciliation["considered_task_ids"]
+        ) == task_ids,
+        "RECONCILIATION_TASK_SET_MISMATCH",
+    )
+
+    conflict_ids = {
+        conflict["conflict_id"]
+        for conflict in bundle["conflicts"]
+    }
+
+    require(
+        set(reconciliation["conflict_ids"])
+        == conflict_ids,
+        "RECONCILIATION_CONFLICT_SET_MISMATCH",
+    )
+
+    evidence_ids = {
+        evidence
+        for task in bundle["tasks"]
+        for evidence in task["evidence_ids"]
+    }
+
+    require(
+        set(reconciliation["evidence_ids"])
+        .issubset(evidence_ids),
+        "RECONCILIATION_EVIDENCE_MISMATCH",
+    )
+
+    unresolved = {
+        task["task_id"]
+        for task in bundle["tasks"]
+        if task["status"] != "completed"
+    }
+
+    blocked = {
+        conflict["conflict_id"]
+        for conflict in bundle["conflicts"]
+        if conflict["disposition"] == "blocked"
+    }
+
+    decision = reconciliation[
+        "decision"
+    ]
+
+    if decision == "accepted":
+        require(
+            not unresolved
+            and not blocked,
+            "UNRESOLVED_CONFLICT_ACCEPTED",
+            ",".join(
+                sorted(unresolved | blocked)
+            ),
+        )
+
+        require(
+            not reconciliation[
+                "unresolved_task_ids"
+            ],
+            "RECONCILIATION_UNRESOLVED_TASK_MISMATCH",
+        )
+
+    else:
+        require(
+            set(
+                reconciliation["unresolved_task_ids"]
+            ) == unresolved,
+            "RECONCILIATION_UNRESOLVED_TASK_MISMATCH",
+        )
+
+    if decision == "held":
+        require(
+            bool(unresolved),
+            "HELD_WITHOUT_UNRESOLVED_TASK",
+        )
+
+        require(
+            all(
+                task["status"]
+                not in {"running", "failed"}
+                for task in bundle["tasks"]
+            ),
+            "UNSAFE_HELD_RECONCILIATION",
+        )
+
+
+def semantic_v04(
+    bundle: dict[str, Any],
+) -> None:
+    agents = bundle["agents"]
+    tasks = bundle["tasks"]
+
+    check_unique_v04(
+        [
+            agent["agent_id"]
+            for agent in agents
+        ],
+        "DUPLICATE_AGENT_ID",
+    )
+
+    check_unique_v04(
+        [
+            task["task_id"]
+            for task in tasks
+        ],
+        "DUPLICATE_TASK_ID",
+    )
+
+    by_agent = {
+        agent["agent_id"]: agent
+        for agent in agents
+    }
+
+    by_task = {
+        task["task_id"]: task
+        for task in tasks
+    }
+
+    # Deterministic error priority is necessary
+    # for matching the eight negative fixtures.
+
+    check_dependencies_v04(
+        tasks,
+        by_task,
+    )
+
+    check_task_authority_v04(
+        bundle,
+        by_agent,
+    )
+
+    check_concurrency_v04(
+        bundle
+    )
+
+    check_conflicts_v04(
+        bundle,
+        by_task,
+    )
+
+    check_verification_v04(
+        bundle,
+        by_task,
+    )
+
+    check_reconciliation_v04(
+        bundle,
+        by_task,
     )
 
 
@@ -1361,7 +2246,10 @@ def validate_fixture(
     schemas: dict[str, Draft202012Validator],
 ) -> tuple[str, str]:
     try:
-        check_schema(record, schemas[version])
+        check_schema(
+            record,
+            schemas[version],
+        )
 
         if version == "v0.1":
             semantic_v01(record)
@@ -1370,7 +2258,13 @@ def validate_fixture(
             semantic_v02(record)
 
         elif version == "v0.3":
-            semantic_v03(record, schemas)
+            semantic_v03(
+                record,
+                schemas,
+            )
+
+        elif version == "v0.4":
+            semantic_v04(record)
 
         else:
             raise ValueError(
@@ -1381,6 +2275,44 @@ def validate_fixture(
         return "FAIL", str(exc)
 
     return "PASS", "VALID"
+
+
+def expected_error_manifest(
+    version: str,
+) -> dict[str, str] | None:
+    if version == "v0.3":
+        return EXPECTED_V03_ERRORS
+
+    if version == "v0.4":
+        return EXPECTED_V04_ERRORS
+
+    return None
+
+
+def check_fail_fixture_manifest(
+    version: str,
+) -> None:
+    manifest = expected_error_manifest(
+        version
+    )
+
+    if manifest is None:
+        return
+
+    directory = (
+        ROOT / "examples" / version / "fail"
+    )
+
+    actual = {
+        path.name
+        for path in directory.glob("*.json")
+    }
+
+    require(
+        set(manifest) == actual,
+        "FAIL_FIXTURE_MANIFEST_MISMATCH",
+        version,
+    )
 
 
 def run_fixtures(
@@ -1399,12 +2331,16 @@ def run_fixtures(
         ("fail", count_fail, "FAIL"),
     ):
         directory = (
-            ROOT / "examples" / version / category
+            ROOT
+            / "examples"
+            / version
+            / category
         )
 
         if not directory.is_dir():
             raise ValueError(
-                f"Missing fixture directory: {directory}"
+                f"Missing fixture directory: "
+                f"{directory}"
             )
 
         paths = sorted(
@@ -1422,9 +2358,13 @@ def run_fixtures(
             total += 1
 
             try:
-                fixture = read_object(path)
+                fixture = read_object(
+                    path
+                )
+
                 declared = fixture.pop(
-                    "expected_result", None
+                    "expected_result",
+                    None,
                 )
 
                 require(
@@ -1433,36 +2373,43 @@ def run_fixtures(
                     path.name,
                 )
 
-                actual, reason = validate_fixture(
-                    fixture,
-                    version,
-                    schemas,
+                actual, reason = (
+                    validate_fixture(
+                        fixture,
+                        version,
+                        schemas,
+                    )
                 )
 
                 ok = actual == expected
 
+                manifest = expected_error_manifest(
+                    version
+                )
+
                 if (
                     ok
-                    and version == "v0.3"
                     and category == "fail"
+                    and manifest is not None
                 ):
                     expected_error = (
-                        EXPECTED_V03_ERRORS.get(
-                            path.name
-                        )
+                        manifest.get(path.name)
                     )
 
                     require(
                         expected_error is not None,
                         "UNKNOWN_FAIL_FIXTURE",
+                        path.name,
                     )
 
                     actual_error = reason.split(
-                        ":", 1
+                        ":",
+                        1,
                     )[0]
 
                     ok = (
-                        actual_error == expected_error
+                        actual_error
+                        == expected_error
                     )
 
                     if not ok:
@@ -1485,29 +2432,41 @@ def run_fixtures(
                 matched += 1
 
             label = (
-                "MATCH" if ok else "MISMATCH"
+                "MATCH"
+                if ok
+                else "MISMATCH"
             )
 
             print(
                 f"[{label}] "
                 f"{path.relative_to(ROOT)} "
-                f"expected={expected} actual={actual}"
+                f"expected={expected} "
+                f"actual={actual}"
             )
 
             if actual != "PASS":
-                print(f"  reason: {reason}")
+                print(
+                    f"  reason: {reason}"
+                )
 
     print(f"[completed] {version}")
 
     return total, matched
 
 
+# ============================================================
+# Main entry point
+# ============================================================
+
 def main() -> int:
     print(
-        "=== MARP v0.1 + v0.2 + v0.3 Validation ==="
+        "=== MARP v0.1-v0.4 Validation ==="
     )
 
-    schemas = {}
+    schemas: dict[
+        str,
+        Draft202012Validator,
+    ] = {}
 
     for version, (
         schema_rel,
@@ -1515,8 +2474,14 @@ def main() -> int:
         _,
     ) in VERSIONS.items():
         path = ROOT / schema_rel
-        schemas[version] = make_validator(path)
-        print(f"[schema-ok] {schema_rel}")
+
+        schemas[version] = make_validator(
+            path
+        )
+
+        print(
+            f"[schema-ok] {schema_rel}"
+        )
 
     hold_schema = (
         ROOT
@@ -1533,16 +2498,8 @@ def main() -> int:
         "schemas/hold-resolution-v0.3.schema.json"
     )
 
-    require(
-        set(EXPECTED_V03_ERRORS)
-        == {
-            path.name
-            for path in (
-                ROOT / "examples" / "v0.3" / "fail"
-            ).glob("*.json")
-        },
-        "FAIL_FIXTURE_MANIFEST_MISMATCH",
-    )
+    check_fail_fixture_manifest("v0.3")
+    check_fail_fixture_manifest("v0.4")
 
     total = 0
     matched = 0
@@ -1569,14 +2526,14 @@ def main() -> int:
     print(f"Matched: {matched}")
     print(f"Mismatched: {total - matched}")
 
-    if total != 36 or matched != total:
+    if total != 50 or matched != total:
         print(
             "[FAIL] MARP conformance mismatch"
         )
         return 1
 
     print(
-        "[PASS] All MARP v0.1-v0.3 "
+        "[PASS] All MARP v0.1-v0.4 "
         "expectations matched"
     )
 
