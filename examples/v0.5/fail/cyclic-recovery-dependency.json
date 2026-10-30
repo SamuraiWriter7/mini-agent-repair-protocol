@@ -1,0 +1,166 @@
+{
+  "schema_version": "0.5.0",
+  "recovery_id": "marp-recovery-064",
+  "target_id": "ai-component-064",
+  "coordination_id": "marp-coordination-064",
+  "lineage_id": "marp-lineage-064",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "recovery_authorization_id": "authorization-recovery-064",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-064",
+    "authorized_operations": [
+      "rollback",
+      "verify"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration",
+      "component-service-routing",
+      "component-verification"
+    ],
+    "issued_at": "2026-10-30T00:05:00Z",
+    "expires_at": "2026-10-30T02:00:00Z",
+    "max_attempts": 3,
+    "max_concurrency": 2,
+    "termination_conditions": [
+      "recovery_verified",
+      "attempt_budget_exhausted",
+      "authorization_revoked",
+      "authorization_expired",
+      "unsafe_state_detected",
+      "external_stop_requested"
+    ]
+  },
+  "failure_assessment": {
+    "failure_id": "failure-cyclic-recovery-064",
+    "failed_task_ids": [
+      "task-repair-configuration-064",
+      "task-repair-routing-064"
+    ],
+    "failure_type": "partial_completion",
+    "observed_at": "2026-10-30T00:00:00Z",
+    "evidence_ids": [
+      "evidence-partial-repair-failure-064"
+    ],
+    "affected_scopes": [
+      "component-runtime-configuration",
+      "component-service-routing"
+    ],
+    "containment_status": "active",
+    "description": "Two rollback actions were planned after a partially completed coordinated repair. Each rollback action incorrectly depends on completion of the other, creating a circular recovery dependency."
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-rollback-configuration-064",
+      "role": "recovery",
+      "authorized_operations": [
+        "rollback"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "active",
+      "authorization_id": "authorization-rollback-configuration-064",
+      "authorization_expires_at": "2026-10-30T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-rollback-routing-064",
+      "role": "recovery",
+      "authorized_operations": [
+        "rollback"
+      ],
+      "authorized_scopes": [
+        "component-service-routing"
+      ],
+      "assignment_status": "active",
+      "authorization_id": "authorization-rollback-routing-064",
+      "authorization_expires_at": "2026-10-30T01:30:00Z"
+    }
+  ],
+  "recovery_actions": [
+    {
+      "action_id": "action-rollback-configuration-064",
+      "source_task_id": "task-repair-configuration-064",
+      "method": "rollback",
+      "assigned_agent_id": "mini-agent-rollback-configuration-064",
+      "target_id": "ai-component-064",
+      "resource_scope": "component-runtime-configuration",
+      "authorization_id": "authorization-rollback-configuration-064",
+      "depends_on": [
+        "action-rollback-routing-064"
+      ],
+      "status": "planned",
+      "attempt_count": 0,
+      "evidence_ids": [
+        "evidence-configuration-rollback-plan-064"
+      ],
+      "recovery_point": {
+        "recovery_point_id": "recovery-point-configuration-064",
+        "state_reference": "snapshot-approved-configuration-064",
+        "state_evidence_ids": [
+          "evidence-configuration-snapshot-064"
+        ],
+        "compatibility_assessment": "compatible",
+        "rollback_scope": "component-runtime-configuration",
+        "assessed_at": "2026-10-30T00:08:00Z",
+        "assessment_evidence_ids": [
+          "evidence-configuration-compatibility-064"
+        ]
+      }
+    },
+    {
+      "action_id": "action-rollback-routing-064",
+      "source_task_id": "task-repair-routing-064",
+      "method": "rollback",
+      "assigned_agent_id": "mini-agent-rollback-routing-064",
+      "target_id": "ai-component-064",
+      "resource_scope": "component-service-routing",
+      "authorization_id": "authorization-rollback-routing-064",
+      "depends_on": [
+        "action-rollback-configuration-064"
+      ],
+      "status": "planned",
+      "attempt_count": 0,
+      "evidence_ids": [
+        "evidence-routing-rollback-plan-064"
+      ],
+      "recovery_point": {
+        "recovery_point_id": "recovery-point-routing-064",
+        "state_reference": "snapshot-approved-routing-064",
+        "state_evidence_ids": [
+          "evidence-routing-snapshot-064"
+        ],
+        "compatibility_assessment": "compatible",
+        "rollback_scope": "component-service-routing",
+        "assessed_at": "2026-10-30T00:08:00Z",
+        "assessment_evidence_ids": [
+          "evidence-routing-compatibility-064"
+        ]
+      }
+    }
+  ],
+  "recovery_verifications": [],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-cyclic-recovery-064",
+    "recovery_id": "marp-recovery-064",
+    "considered_action_ids": [
+      "action-rollback-configuration-064",
+      "action-rollback-routing-064"
+    ],
+    "verified_action_ids": [],
+    "unresolved_action_ids": [
+      "action-rollback-configuration-064",
+      "action-rollback-routing-064"
+    ],
+    "decision": "rejected",
+    "containment_status": "active",
+    "evidence_ids": [
+      "evidence-configuration-rollback-plan-064",
+      "evidence-routing-rollback-plan-064",
+      "evidence-partial-repair-failure-064"
+    ],
+    "evaluated_at": "2026-10-30T00:15:00Z"
+  },
+  "evaluated_at": "2026-10-30T00:15:00Z",
+  "expected_result": "FAIL"
+}
