@@ -1,0 +1,818 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MARP Repair Recovery Bundle v0.5",
+  "description": "Bounded rollback, compensation, containment preservation, independent recovery verification, and recovery reconciliation for failed or partially completed coordinated repairs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "recovery_id",
+    "target_id",
+    "coordination_id",
+    "lineage_id",
+    "authority",
+    "failure_assessment",
+    "agents",
+    "recovery_actions",
+    "recovery_verifications",
+    "reconciliation",
+    "evaluated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.5.0"
+    },
+    "recovery_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "target_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "coordination_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "lineage_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "authority": {
+      "$ref": "#/$defs/recoveryAuthority"
+    },
+    "failure_assessment": {
+      "$ref": "#/$defs/failureAssessment"
+    },
+    "agents": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/agentAssignment"
+      }
+    },
+    "recovery_actions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/$defs/recoveryAction"
+      }
+    },
+    "recovery_verifications": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/$defs/recoveryVerification"
+      }
+    },
+    "reconciliation": {
+      "$ref": "#/$defs/recoveryReconciliation"
+    },
+    "evaluated_at": {
+      "$ref": "#/$defs/timestamp"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidenceIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/identifier"
+      }
+    },
+    "recoveryMethod": {
+      "enum": [
+        "rollback",
+        "compensation",
+        "containment_only",
+        "no_action"
+      ]
+    },
+    "recoveryOperation": {
+      "enum": [
+        "rollback",
+        "compensate",
+        "contain",
+        "verify",
+        "reconcile"
+      ]
+    },
+    "recoveryStatus": {
+      "enum": [
+        "planned",
+        "authorized",
+        "running",
+        "held",
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "recoveryAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "controller_id",
+        "recovery_authorization_id",
+        "authorization_status",
+        "authorized_target_id",
+        "authorized_operations",
+        "authorized_scopes",
+        "issued_at",
+        "max_attempts",
+        "max_concurrency"
+      ],
+      "properties": {
+        "controller_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "recovery_authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_status": {
+          "enum": [
+            "granted",
+            "pending",
+            "denied",
+            "revoked",
+            "expired"
+          ]
+        },
+        "authorized_target_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorized_operations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/recoveryOperation"
+          }
+        },
+        "authorized_scopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "issued_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "expires_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "revoked_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "max_attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "max_concurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "termination_conditions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "recovery_verified",
+              "attempt_budget_exhausted",
+              "authorization_revoked",
+              "authorization_expired",
+              "unsafe_state_detected",
+              "external_stop_requested"
+            ]
+          }
+        }
+      }
+    },
+    "failureAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "failure_id",
+        "failed_task_ids",
+        "failure_type",
+        "observed_at",
+        "evidence_ids",
+        "affected_scopes",
+        "containment_status"
+      ],
+      "properties": {
+        "failure_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "failed_task_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "failure_type": {
+          "enum": [
+            "repair_failed",
+            "verification_failed",
+            "partial_completion",
+            "state_divergence",
+            "authorization_revoked",
+            "resource_conflict",
+            "unknown"
+          ]
+        },
+        "observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "evidence_ids": {
+          "$ref": "#/$defs/evidenceIds"
+        },
+        "affected_scopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "containment_status": {
+          "enum": [
+            "active",
+            "held",
+            "not_applied",
+            "released"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      }
+    },
+    "agentAssignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_id",
+        "role",
+        "authorized_operations",
+        "authorized_scopes",
+        "assignment_status",
+        "authorization_id"
+      ],
+      "properties": {
+        "agent_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "role": {
+          "enum": [
+            "recovery",
+            "containment",
+            "verification",
+            "reconciliation"
+          ]
+        },
+        "authorized_operations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/recoveryOperation"
+          }
+        },
+        "authorized_scopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "assignment_status": {
+          "enum": [
+            "active",
+            "held",
+            "completed",
+            "revoked"
+          ]
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_expires_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "authorization_revoked_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      }
+    },
+    "recoveryAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action_id",
+        "source_task_id",
+        "method",
+        "assigned_agent_id",
+        "target_id",
+        "resource_scope",
+        "authorization_id",
+        "depends_on",
+        "status",
+        "attempt_count",
+        "evidence_ids"
+      ],
+      "properties": {
+        "action_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "source_task_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "method": {
+          "$ref": "#/$defs/recoveryMethod"
+        },
+        "assigned_agent_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "target_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "resource_scope": {
+          "$ref": "#/$defs/identifier"
+        },
+        "authorization_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "depends_on": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "status": {
+          "$ref": "#/$defs/recoveryStatus"
+        },
+        "attempt_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1024
+        },
+        "evidence_ids": {
+          "$ref": "#/$defs/evidenceIds"
+        },
+        "recovery_point": {
+          "$ref": "#/$defs/recoveryPoint"
+        },
+        "compensation": {
+          "$ref": "#/$defs/compensationPlan"
+        },
+        "started_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "completed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "held_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "failure_reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "rollback"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "required": [
+              "recovery_point"
+            ],
+            "not": {
+              "required": [
+                "compensation"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "compensation"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "required": [
+              "compensation"
+            ],
+            "not": {
+              "required": [
+                "recovery_point"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "enum": [
+                  "containment_only",
+                  "no_action"
+                ]
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "recovery_point"
+                  ]
+                },
+                {
+                  "required": [
+                    "compensation"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "no_action"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "attempt_count": {
+                "const": 0
+              },
+              "status": {
+                "enum": [
+                  "planned",
+                  "held",
+                  "cancelled"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "running"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "started_at"
+            ],
+            "properties": {
+              "attempt_count": {
+                "minimum": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "completed"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "started_at",
+              "completed_at"
+            ],
+            "properties": {
+              "attempt_count": {
+                "minimum": 1
+              },
+              "evidence_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "held"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "held_at"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "failed"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "failure_reason"
+            ]
+          }
+        }
+      ]
+    },
+    "recoveryPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recovery_point_id",
+        "state_reference",
+        "state_evidence_ids",
+        "compatibility_assessment",
+        "rollback_scope"
+      ],
+      "properties": {
+        "recovery_point_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "state_reference": {
+          "$ref": "#/$defs/identifier"
+        },
+        "state_evidence_ids": {
+          "$ref": "#/$defs/evidenceIds",
+          "minItems": 1
+        },
+        "compatibility_assessment": {
+          "enum": [
+            "compatible",
+            "incompatible",
+            "indeterminate"
+          ]
+        },
+        "rollback_scope": {
+          "$ref": "#/$defs/identifier"
+        },
+        "assessed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "assessment_evidence_ids": {
+          "$ref": "#/$defs/evidenceIds"
+        }
+      }
+    },
+    "compensationPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "original_operation_id",
+        "compensating_operation",
+        "intended_mitigation",
+        "residual_risks",
+        "evidence_ids"
+      ],
+      "properties": {
+        "original_operation_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "compensating_operation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "intended_mitigation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "residual_risks": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        },
+        "evidence_ids": {
+          "$ref": "#/$defs/evidenceIds",
+          "minItems": 1
+        }
+      }
+    },
+    "recoveryVerification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verification_id",
+        "action_id",
+        "verifier_agent_id",
+        "verification_status",
+        "evidence_ids",
+        "verified_at"
+      ],
+      "properties": {
+        "verification_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "action_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "verifier_agent_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "verification_status": {
+          "enum": [
+            "passed",
+            "failed",
+            "indeterminate"
+          ]
+        },
+        "evidence_ids": {
+          "$ref": "#/$defs/evidenceIds",
+          "minItems": 1
+        },
+        "verified_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      }
+    },
+    "recoveryReconciliation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reconciliation_id",
+        "recovery_id",
+        "considered_action_ids",
+        "verified_action_ids",
+        "unresolved_action_ids",
+        "decision",
+        "containment_status",
+        "evidence_ids",
+        "evaluated_at"
+      ],
+      "properties": {
+        "reconciliation_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "recovery_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "considered_action_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "verified_action_ids": {
+          "$ref": "#/$defs/evidenceIds"
+        },
+        "unresolved_action_ids": {
+          "$ref": "#/$defs/evidenceIds"
+        },
+        "decision": {
+          "enum": [
+            "recovered",
+            "contained",
+            "rejected",
+            "indeterminate"
+          ]
+        },
+        "containment_status": {
+          "enum": [
+            "active",
+            "held",
+            "not_applied",
+            "released"
+          ]
+        },
+        "evidence_ids": {
+          "$ref": "#/$defs/evidenceIds"
+        },
+        "evaluated_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "recovered"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "unresolved_action_ids": {
+                "maxItems": 0
+              },
+              "evidence_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "contained"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "containment_status": {
+                "enum": [
+                  "active",
+                  "held"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
