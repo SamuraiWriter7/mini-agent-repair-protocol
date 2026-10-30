@@ -1,0 +1,145 @@
+{
+  "schema_version": "0.5.0",
+  "recovery_id": "marp-recovery-066",
+  "target_id": "ai-component-066",
+  "coordination_id": "marp-coordination-066",
+  "lineage_id": "marp-lineage-066",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "recovery_authorization_id": "authorization-recovery-066",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-066",
+    "authorized_operations": [
+      "rollback",
+      "verify"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration",
+      "component-verification"
+    ],
+    "issued_at": "2026-10-30T00:05:00Z",
+    "expires_at": "2026-10-30T02:00:00Z",
+    "max_attempts": 3,
+    "max_concurrency": 1,
+    "termination_conditions": [
+      "recovery_verified",
+      "attempt_budget_exhausted",
+      "authorization_revoked",
+      "authorization_expired",
+      "unsafe_state_detected",
+      "external_stop_requested"
+    ]
+  },
+  "failure_assessment": {
+    "failure_id": "failure-revoked-recovery-066",
+    "failed_task_ids": [
+      "task-repair-066"
+    ],
+    "failure_type": "repair_failed",
+    "observed_at": "2026-10-30T00:00:00Z",
+    "evidence_ids": [
+      "evidence-original-repair-failure-066",
+      "evidence-recovery-authorization-revocation-066"
+    ],
+    "affected_scopes": [
+      "component-runtime-configuration"
+    ],
+    "containment_status": "active",
+    "description": "A rollback was prepared after a failed repair. The external controller revoked the assigned recovery agent's authorization at 00:20 UTC. Despite that revocation, the agent started rollback at 00:25 UTC and reported completion."
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-rollback-066",
+      "role": "recovery",
+      "authorized_operations": [
+        "rollback"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "revoked",
+      "authorization_id": "authorization-rollback-agent-066",
+      "authorization_expires_at": "2026-10-30T01:30:00Z",
+      "authorization_revoked_at": "2026-10-30T00:20:00Z"
+    },
+    {
+      "agent_id": "mini-agent-recovery-verifier-066",
+      "role": "verification",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-verification"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-recovery-verifier-066",
+      "authorization_expires_at": "2026-10-30T01:30:00Z"
+    }
+  ],
+  "recovery_actions": [
+    {
+      "action_id": "action-revoked-rollback-066",
+      "source_task_id": "task-repair-066",
+      "method": "rollback",
+      "assigned_agent_id": "mini-agent-rollback-066",
+      "target_id": "ai-component-066",
+      "resource_scope": "component-runtime-configuration",
+      "authorization_id": "authorization-rollback-agent-066",
+      "depends_on": [],
+      "status": "completed",
+      "attempt_count": 1,
+      "evidence_ids": [
+        "evidence-rollback-after-revocation-066",
+        "evidence-unauthorized-recovery-completion-066"
+      ],
+      "recovery_point": {
+        "recovery_point_id": "recovery-point-066",
+        "state_reference": "snapshot-approved-runtime-config-066",
+        "state_evidence_ids": [
+          "evidence-approved-configuration-snapshot-066"
+        ],
+        "compatibility_assessment": "compatible",
+        "rollback_scope": "component-runtime-configuration",
+        "assessed_at": "2026-10-30T00:10:00Z",
+        "assessment_evidence_ids": [
+          "evidence-recovery-point-compatibility-066"
+        ]
+      },
+      "started_at": "2026-10-30T00:25:00Z",
+      "completed_at": "2026-10-30T00:35:00Z"
+    }
+  ],
+  "recovery_verifications": [
+    {
+      "verification_id": "verification-revoked-rollback-066",
+      "action_id": "action-revoked-rollback-066",
+      "verifier_agent_id": "mini-agent-recovery-verifier-066",
+      "verification_status": "failed",
+      "evidence_ids": [
+        "evidence-revoked-authorization-detected-066"
+      ],
+      "verified_at": "2026-10-30T00:40:00Z"
+    }
+  ],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-revoked-recovery-066",
+    "recovery_id": "marp-recovery-066",
+    "considered_action_ids": [
+      "action-revoked-rollback-066"
+    ],
+    "verified_action_ids": [],
+    "unresolved_action_ids": [
+      "action-revoked-rollback-066"
+    ],
+    "decision": "rejected",
+    "containment_status": "active",
+    "evidence_ids": [
+      "evidence-recovery-authorization-revocation-066",
+      "evidence-rollback-after-revocation-066",
+      "evidence-revoked-authorization-detected-066"
+    ],
+    "evaluated_at": "2026-10-30T00:45:00Z"
+  },
+  "evaluated_at": "2026-10-30T00:45:00Z",
+  "expected_result": "FAIL"
+}
