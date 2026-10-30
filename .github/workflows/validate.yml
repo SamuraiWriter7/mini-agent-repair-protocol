@@ -1,4 +1,4 @@
-name: Validate MARP v0.1-v0.4
+name: Validate MARP v0.1-v0.5
 
 "on":
   push:
@@ -67,6 +67,7 @@ jobs:
             "schemas/repair-lineage-v0.3.schema.json"
             "schemas/hold-resolution-v0.3.schema.json"
             "schemas/repair-coordination-v0.4.schema.json"
+            "schemas/repair-recovery-v0.5.schema.json"
           )
 
           for file in "${required_files[@]}"; do
@@ -78,7 +79,7 @@ jobs:
             echo "[FOUND] $file"
           done
 
-          for version in v0.1 v0.2 v0.3 v0.4; do
+          for version in v0.1 v0.2 v0.3 v0.4 v0.5; do
             for category in pass fail; do
               directory="examples/${version}/${category}"
 
@@ -111,6 +112,8 @@ jobs:
               )
 
               print(f"[syntax-ok] {path}")
+
+          print("[PASS] Python syntax checks completed")
           PY
 
       - name: Validate JSON Schemas
@@ -129,6 +132,7 @@ jobs:
               "schemas/repair-lineage-v0.3.schema.json",
               "schemas/hold-resolution-v0.3.schema.json",
               "schemas/repair-coordination-v0.4.schema.json",
+              "schemas/repair-recovery-v0.5.schema.json",
           )
 
           for filename in files:
@@ -156,9 +160,12 @@ jobs:
               "v0.2": (6, 6),
               "v0.3": (6, 8),
               "v0.4": (6, 8),
+              "v0.5": (6, 8),
           }
 
           total = 0
+          total_pass = 0
+          total_fail = 0
 
           for version, counts in expected.items():
               pass_count, fail_count = counts
@@ -172,6 +179,12 @@ jobs:
                       / version
                       / category
                   )
+
+                  if not directory.is_dir():
+                      raise SystemExit(
+                          f"[FATAL] Missing fixture directory: "
+                          f"{directory}"
+                      )
 
                   found = len(
                       list(directory.glob("*.json"))
@@ -191,13 +204,27 @@ jobs:
 
                   total += found
 
-          if total != 50:
+                  if category == "pass":
+                      total_pass += found
+                  else:
+                      total_fail += found
+
+          if (
+              total != 64
+              or total_pass != 28
+              or total_fail != 36
+          ):
               raise SystemExit(
-                  f"[FATAL] Expected 50 fixtures, "
-                  f"got {total}"
+                  "[FATAL] Invalid fixture totals: "
+                  f"total={total}, "
+                  f"pass={total_pass}, "
+                  f"fail={total_fail}"
               )
 
-          print("[PASS] 50 fixture files found")
+          print(
+              "[PASS] 64 fixture files found "
+              "(28 PASS / 36 FAIL)"
+          )
           PY
 
       - name: Generate MARP v0.3 source fixtures
@@ -214,7 +241,7 @@ jobs:
           python scripts/generate_v0.3_sources.py --check \
             | tee marp-source-check.log
 
-      - name: Run MARP v0.1-v0.4 validation
+      - name: Run MARP v0.1-v0.5 validation
         run: |
           set -euo pipefail
 
@@ -241,8 +268,8 @@ jobs:
           )
 
           expected = {
-              "Total": 50,
-              "Matched": 50,
+              "Total": 64,
+              "Matched": 64,
               "Mismatched": 0,
           }
 
@@ -268,7 +295,7 @@ jobs:
               print(f"[MATCH] {label}: {actual}")
 
           success_marker = (
-              "[PASS] All MARP v0.1-v0.4 "
+              "[PASS] All MARP v0.1-v0.5 "
               "expectations matched"
           )
 
@@ -282,6 +309,7 @@ jobs:
               "v0.2",
               "v0.3",
               "v0.4",
+              "v0.5",
           ):
               marker = f"[completed] {version}"
 
@@ -293,6 +321,17 @@ jobs:
 
               print(f"[MATCH] Version: {version}")
 
+          mismatch_lines = re.findall(
+              r"(?m)^\[MISMATCH\].*$",
+              content,
+          )
+
+          if mismatch_lines:
+              raise SystemExit(
+                  "[FATAL] Unexpected mismatch entries:\n"
+                  + "\n".join(mismatch_lines)
+              )
+
           print("[PASS] MARP integrated validation")
           PY
 
@@ -303,11 +342,11 @@ jobs:
           PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
           {
-            echo "## MARP v0.1-v0.4 Validation"
+            echo "## MARP v0.1-v0.5 Validation"
             echo ""
             echo "- Python: \`${PYTHON_VERSION}\`"
             echo "- Job status: \`${JOB_STATUS}\`"
-            echo "- Expected fixtures: **50**"
+            echo "- Expected fixtures: **64**"
             echo ""
             echo "| Version | PASS fixtures | FAIL fixtures | Total |"
             echo "| --- | ---: | ---: | ---: |"
@@ -315,7 +354,8 @@ jobs:
             echo "| v0.2 | 6 | 6 | 12 |"
             echo "| v0.3 | 6 | 8 | 14 |"
             echo "| v0.4 | 6 | 8 | 14 |"
-            echo "| **Total** | **22** | **28** | **50** |"
+            echo "| v0.5 | 6 | 8 | 14 |"
+            echo "| **Total** | **28** | **36** | **64** |"
             echo ""
 
             if [[ -f marp-validation.log ]]; then
