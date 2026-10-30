@@ -1,0 +1,164 @@
+{
+  "schema_version": "0.5.0",
+  "recovery_id": "marp-recovery-060",
+  "target_id": "ai-component-060",
+  "coordination_id": "marp-coordination-060",
+  "lineage_id": "marp-lineage-060",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "recovery_authorization_id": "authorization-recovery-060",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-060",
+    "authorized_operations": [
+      "rollback",
+      "verify",
+      "reconcile"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration",
+      "component-verification",
+      "component-reconciliation"
+    ],
+    "issued_at": "2026-10-30T00:05:00Z",
+    "expires_at": "2026-10-30T02:00:00Z",
+    "max_attempts": 3,
+    "max_concurrency": 1,
+    "termination_conditions": [
+      "recovery_verified",
+      "attempt_budget_exhausted",
+      "authorization_revoked",
+      "authorization_expired",
+      "unsafe_state_detected",
+      "external_stop_requested"
+    ]
+  },
+  "failure_assessment": {
+    "failure_id": "failure-independent-reconciliation-060",
+    "failed_task_ids": [
+      "task-repair-060"
+    ],
+    "failure_type": "verification_failed",
+    "observed_at": "2026-10-30T00:00:00Z",
+    "evidence_ids": [
+      "evidence-original-repair-verification-failure-060",
+      "evidence-recovery-required-060"
+    ],
+    "affected_scopes": [
+      "component-runtime-configuration"
+    ],
+    "containment_status": "active",
+    "description": "The original coordinated repair failed independent verification. A compatible recovery point was identified. Recovery execution, verification, and final reconciliation are assigned to separate agents under external authorization."
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-recovery-060",
+      "role": "recovery",
+      "authorized_operations": [
+        "rollback"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-recovery-agent-060",
+      "authorization_expires_at": "2026-10-30T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-verification-060",
+      "role": "verification",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-verification"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-verification-agent-060",
+      "authorization_expires_at": "2026-10-30T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-reconciliation-060",
+      "role": "reconciliation",
+      "authorized_operations": [
+        "reconcile"
+      ],
+      "authorized_scopes": [
+        "component-reconciliation"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-reconciliation-agent-060",
+      "authorization_expires_at": "2026-10-30T01:30:00Z"
+    }
+  ],
+  "recovery_actions": [
+    {
+      "action_id": "action-independent-rollback-060",
+      "source_task_id": "task-repair-060",
+      "method": "rollback",
+      "assigned_agent_id": "mini-agent-recovery-060",
+      "target_id": "ai-component-060",
+      "resource_scope": "component-runtime-configuration",
+      "authorization_id": "authorization-recovery-agent-060",
+      "depends_on": [],
+      "status": "completed",
+      "attempt_count": 1,
+      "evidence_ids": [
+        "evidence-rollback-execution-060",
+        "evidence-restored-state-060"
+      ],
+      "recovery_point": {
+        "recovery_point_id": "recovery-point-060",
+        "state_reference": "snapshot-approved-runtime-configuration-060",
+        "state_evidence_ids": [
+          "evidence-approved-baseline-snapshot-060"
+        ],
+        "compatibility_assessment": "compatible",
+        "rollback_scope": "component-runtime-configuration",
+        "assessed_at": "2026-10-30T00:08:00Z",
+        "assessment_evidence_ids": [
+          "evidence-recovery-point-compatibility-060"
+        ]
+      },
+      "started_at": "2026-10-30T00:15:00Z",
+      "completed_at": "2026-10-30T00:25:00Z"
+    }
+  ],
+  "recovery_verifications": [
+    {
+      "verification_id": "verification-independent-rollback-060",
+      "action_id": "action-independent-rollback-060",
+      "verifier_agent_id": "mini-agent-verification-060",
+      "verification_status": "passed",
+      "evidence_ids": [
+        "evidence-independent-state-verification-060",
+        "evidence-independent-integrity-verification-060",
+        "evidence-independent-containment-check-060"
+      ],
+      "verified_at": "2026-10-30T00:35:00Z"
+    }
+  ],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-independent-recovery-060",
+    "recovery_id": "marp-recovery-060",
+    "considered_action_ids": [
+      "action-independent-rollback-060"
+    ],
+    "verified_action_ids": [
+      "action-independent-rollback-060"
+    ],
+    "unresolved_action_ids": [],
+    "decision": "recovered",
+    "containment_status": "active",
+    "evidence_ids": [
+      "evidence-rollback-execution-060",
+      "evidence-restored-state-060",
+      "evidence-independent-state-verification-060",
+      "evidence-independent-integrity-verification-060",
+      "evidence-independent-containment-check-060",
+      "evidence-independent-reconciliation-060"
+    ],
+    "evaluated_at": "2026-10-30T00:45:00Z"
+  },
+  "evaluated_at": "2026-10-30T00:45:00Z",
+  "expected_result": "PASS"
+}
