@@ -1,0 +1,161 @@
+{
+  "schema_version": "0.5.0",
+  "recovery_id": "marp-recovery-056",
+  "target_id": "ai-component-056",
+  "coordination_id": "marp-coordination-056",
+  "lineage_id": "marp-lineage-056",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "recovery_authorization_id": "authorization-recovery-056",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-056",
+    "authorized_operations": [
+      "rollback",
+      "verify",
+      "reconcile"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration",
+      "component-verification",
+      "component-reconciliation"
+    ],
+    "issued_at": "2026-10-30T00:05:00Z",
+    "expires_at": "2026-10-30T02:00:00Z",
+    "max_attempts": 3,
+    "max_concurrency": 1,
+    "termination_conditions": [
+      "recovery_verified",
+      "attempt_budget_exhausted",
+      "authorization_revoked",
+      "authorization_expired",
+      "unsafe_state_detected",
+      "external_stop_requested"
+    ]
+  },
+  "failure_assessment": {
+    "failure_id": "failure-verification-056",
+    "failed_task_ids": [
+      "task-repair-056"
+    ],
+    "failure_type": "state_divergence",
+    "observed_at": "2026-10-30T00:00:00Z",
+    "evidence_ids": [
+      "evidence-original-state-divergence-056"
+    ],
+    "affected_scopes": [
+      "component-runtime-configuration"
+    ],
+    "containment_status": "active",
+    "description": "The completed repair produced a configuration state inconsistent with the approved baseline. A previously recorded compatible snapshot is available for rollback."
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-rollback-056",
+      "role": "recovery",
+      "authorized_operations": [
+        "rollback"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-rollback-agent-056",
+      "authorization_expires_at": "2026-10-30T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-verification-056",
+      "role": "verification",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-verification"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-verification-agent-056",
+      "authorization_expires_at": "2026-10-30T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-reconciliation-056",
+      "role": "reconciliation",
+      "authorized_operations": [
+        "reconcile"
+      ],
+      "authorized_scopes": [
+        "component-reconciliation"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-reconciliation-agent-056",
+      "authorization_expires_at": "2026-10-30T01:30:00Z"
+    }
+  ],
+  "recovery_actions": [
+    {
+      "action_id": "action-rollback-056",
+      "source_task_id": "task-repair-056",
+      "method": "rollback",
+      "assigned_agent_id": "mini-agent-rollback-056",
+      "target_id": "ai-component-056",
+      "resource_scope": "component-runtime-configuration",
+      "authorization_id": "authorization-rollback-agent-056",
+      "depends_on": [],
+      "status": "completed",
+      "attempt_count": 1,
+      "evidence_ids": [
+        "evidence-rollback-execution-056",
+        "evidence-post-rollback-state-056"
+      ],
+      "recovery_point": {
+        "recovery_point_id": "recovery-point-056",
+        "state_reference": "snapshot-approved-config-056",
+        "state_evidence_ids": [
+          "evidence-approved-baseline-snapshot-056"
+        ],
+        "compatibility_assessment": "compatible",
+        "rollback_scope": "component-runtime-configuration",
+        "assessed_at": "2026-10-30T00:08:00Z",
+        "assessment_evidence_ids": [
+          "evidence-snapshot-compatibility-056"
+        ]
+      },
+      "started_at": "2026-10-30T00:15:00Z",
+      "completed_at": "2026-10-30T00:25:00Z"
+    }
+  ],
+  "recovery_verifications": [
+    {
+      "verification_id": "verification-rollback-056",
+      "action_id": "action-rollback-056",
+      "verifier_agent_id": "mini-agent-verification-056",
+      "verification_status": "passed",
+      "evidence_ids": [
+        "evidence-independent-state-comparison-056",
+        "evidence-independent-integrity-check-056"
+      ],
+      "verified_at": "2026-10-30T00:35:00Z"
+    }
+  ],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-verified-rollback-056",
+    "recovery_id": "marp-recovery-056",
+    "considered_action_ids": [
+      "action-rollback-056"
+    ],
+    "verified_action_ids": [
+      "action-rollback-056"
+    ],
+    "unresolved_action_ids": [],
+    "decision": "recovered",
+    "containment_status": "active",
+    "evidence_ids": [
+      "evidence-rollback-execution-056",
+      "evidence-post-rollback-state-056",
+      "evidence-independent-state-comparison-056",
+      "evidence-independent-integrity-check-056",
+      "evidence-recovery-reconciliation-056"
+    ],
+    "evaluated_at": "2026-10-30T00:45:00Z"
+  },
+  "evaluated_at": "2026-10-30T00:45:00Z",
+  "expected_result": "PASS"
+}
