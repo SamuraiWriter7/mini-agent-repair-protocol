@@ -1,0 +1,136 @@
+{
+  "schema_version": "0.5.0",
+  "recovery_id": "marp-recovery-058",
+  "target_id": "ai-component-058",
+  "coordination_id": "marp-coordination-058",
+  "lineage_id": "marp-lineage-058",
+  "authority": {
+    "controller_id": "external-authority-controller-001",
+    "recovery_authorization_id": "authorization-recovery-058",
+    "authorization_status": "granted",
+    "authorized_target_id": "ai-component-058",
+    "authorized_operations": [
+      "contain",
+      "verify"
+    ],
+    "authorized_scopes": [
+      "component-runtime-configuration",
+      "component-verification"
+    ],
+    "issued_at": "2026-10-30T00:05:00Z",
+    "expires_at": "2026-10-30T02:00:00Z",
+    "max_attempts": 3,
+    "max_concurrency": 1,
+    "termination_conditions": [
+      "recovery_verified",
+      "attempt_budget_exhausted",
+      "authorization_revoked",
+      "authorization_expired",
+      "unsafe_state_detected",
+      "external_stop_requested"
+    ]
+  },
+  "failure_assessment": {
+    "failure_id": "failure-unsafe-recovery-058",
+    "failed_task_ids": [
+      "task-repair-058"
+    ],
+    "failure_type": "state_divergence",
+    "observed_at": "2026-10-30T00:00:00Z",
+    "evidence_ids": [
+      "evidence-state-divergence-058",
+      "evidence-recovery-point-uncertainty-058",
+      "evidence-compensation-risk-058"
+    ],
+    "affected_scopes": [
+      "component-runtime-configuration"
+    ],
+    "containment_status": "active",
+    "description": "The coordinated repair produced an uncertain target state. No compatible rollback point has been verified, and the safety of a compensating operation cannot be established. Existing containment must remain active until an externally authorized recovery plan becomes available."
+  },
+  "agents": [
+    {
+      "agent_id": "mini-agent-containment-058",
+      "role": "containment",
+      "authorized_operations": [
+        "contain"
+      ],
+      "authorized_scopes": [
+        "component-runtime-configuration"
+      ],
+      "assignment_status": "held",
+      "authorization_id": "authorization-containment-agent-058",
+      "authorization_expires_at": "2026-10-30T01:30:00Z"
+    },
+    {
+      "agent_id": "mini-agent-verification-058",
+      "role": "verification",
+      "authorized_operations": [
+        "verify"
+      ],
+      "authorized_scopes": [
+        "component-verification"
+      ],
+      "assignment_status": "completed",
+      "authorization_id": "authorization-verification-agent-058",
+      "authorization_expires_at": "2026-10-30T01:30:00Z"
+    }
+  ],
+  "recovery_actions": [
+    {
+      "action_id": "action-preserve-containment-058",
+      "source_task_id": "task-repair-058",
+      "method": "containment_only",
+      "assigned_agent_id": "mini-agent-containment-058",
+      "target_id": "ai-component-058",
+      "resource_scope": "component-runtime-configuration",
+      "authorization_id": "authorization-containment-agent-058",
+      "depends_on": [],
+      "status": "held",
+      "attempt_count": 0,
+      "evidence_ids": [
+        "evidence-existing-containment-058",
+        "evidence-recovery-suspension-058"
+      ],
+      "held_at": "2026-10-30T00:15:00Z",
+      "reason": "Rollback compatibility and compensation safety are unverified. Preserve existing containment and suspend state-changing recovery."
+    }
+  ],
+  "recovery_verifications": [
+    {
+      "verification_id": "verification-containment-058",
+      "action_id": "action-preserve-containment-058",
+      "verifier_agent_id": "mini-agent-verification-058",
+      "verification_status": "passed",
+      "evidence_ids": [
+        "evidence-independent-containment-observation-058",
+        "evidence-no-recovery-execution-058"
+      ],
+      "verified_at": "2026-10-30T00:25:00Z"
+    }
+  ],
+  "reconciliation": {
+    "reconciliation_id": "reconciliation-containment-058",
+    "recovery_id": "marp-recovery-058",
+    "considered_action_ids": [
+      "action-preserve-containment-058"
+    ],
+    "verified_action_ids": [
+      "action-preserve-containment-058"
+    ],
+    "unresolved_action_ids": [
+      "action-preserve-containment-058"
+    ],
+    "decision": "contained",
+    "containment_status": "active",
+    "evidence_ids": [
+      "evidence-existing-containment-058",
+      "evidence-recovery-suspension-058",
+      "evidence-independent-containment-observation-058",
+      "evidence-no-recovery-execution-058"
+    ],
+    "evaluated_at": "2026-10-30T00:30:00Z"
+  },
+  "evaluated_at": "2026-10-30T00:30:00Z",
+  "expected_result": "PASS"
+}
